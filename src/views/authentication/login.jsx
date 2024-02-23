@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Grid, Button } from '@mui/material';
 import axios from 'axios';
-import { BASE_URL } from './config';
+import { BASE_URL, API_VERSION} from './config';
 import logo from '../../assets/images/logos/logo.png';
 import logo_2 from '../../assets/images/logos/logo-2.png';
 import { useNavigate } from 'react-router-dom'; // Importer useNavigate depuis React Router
@@ -18,7 +18,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${BASE_URL}/login`, { email, password });
+      const response = await axios.post(`${BASE_URL}/${API_VERSION}/token`, { email, password });
       localStorage.setItem('accessToken', response.data.accessToken);
       console.log(response.data.accessToken);
       setError('');

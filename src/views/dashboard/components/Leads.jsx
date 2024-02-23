@@ -16,8 +16,20 @@ function Leads() {
   return (
     <DashboardCard >
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5" mr={87}>
+        <Typography variant="h5" mr={15}>
           Leads Log
+        </Typography>
+        <Typography sx={{ backgroundColor: '#67B7DC', color: 'white',padding:"10px" }} variant="h6" mr={5}>
+          Plateform
+        </Typography>
+        <Typography sx={{ backgroundColor: '#626DD2', color: 'white',padding:"10px" }} variant="h6" mr={5}>
+          Coordonnées
+        </Typography>
+        <Typography sx={{ backgroundColor: '#A367DC', color: 'white',padding:"10px" }} variant="h6" mr={5}>
+          Client
+        </Typography>
+        <Typography sx={{ backgroundColor: '#DC67AB', color: 'white',padding:"10px" }} variant="h6" mr={12}>
+          Marketing
         </Typography>
         <TextField
           id="outlined-basic"

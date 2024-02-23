@@ -30,7 +30,7 @@ function generateAccessToken(user) {
   // Générer un access token en utilisant jwt.sign()
   return jwt.sign(user, 'e58poU@RTU8977', { expiresIn: '1h' }); // Définir une expiration pour l'access token
 }
-app.post('/login', (req, res) => {
+app.post('/token', (req, res) => {
   const { email, password } = req.body;
 
   db.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (err, result) => {
