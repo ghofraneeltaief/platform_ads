@@ -6,59 +6,44 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import { BASE_URL, api_version } from '../../authentication/config';
 import { Grid } from '@mui/material';
 import { Typography } from '@mui/material';
 import './selection.css';
-
+import { BASE_URL , api_version } from '../../authentication/config';
 function Selection() {
-  const [verticales, setVerticales] = useState([]);
-  const [selectedVerticale, setSelectedVerticale] = useState('');
-  const [sources, setSources] = useState([]);
-  const [selectedSource, setSelectedSource] = useState(''); // Add this line
+  const [verticals, setVerticals] = useState([]);
+  async function getToken() {
+    // Code pour récupérer le token JWT, par exemple depuis le localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      return token;
+    } else {
+      // Gérer le cas où aucun token n'est disponible
+      throw new Error('No token available');
+    }
+  }
   useEffect(() => {
-    fetchData();
-  }, []);
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/${api_version}/verticals`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch verticals');
+    const fetchVerticals = async () => {
+      try {
+        const token = await getToken(); // Fonction pour récupérer le token JWT
+        const responseObject = JSON.parse(token);
+        const accessToken = responseObject.access_token;
+        const requestOptions = {
+          headers: {
+            'Hipto-Authorization': accessToken,
+          },
+        };
+        const response = await fetch(`${BASE_URL}/${api_version}/verticals`, requestOptions);
+        const data = await response.json();
+        console.log(data);
+        setVerticals(data);
+      } catch (error) {
+        console.error(error);
       }
-      const data = await response.json();
-      setVerticales(data);
-    } catch (error) {
-      console.error('Error fetching verticals:', error);
-    }
-  };
-  useEffect(() => {
-    // Fetch sources when selectedVerticale changes
-    if (selectedVerticale) {
-      fetchSources(selectedVerticale);
-    }
-  }, [selectedVerticale]);
-  const fetchSources = async (selectedVerticale) => {
-    try {
-      const response = await fetch(
-        `${BASE_URL}/${api_version}/sources?vertical=${selectedVerticale}`,
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch sources');
-      }
-      const data = await response.json();
-      setSources(data);
-    } catch (error) {
-      console.error('Error fetching sources:', error);
-    }
-  };
-  const handleVerticaleChange = (event) => {
-    setSelectedVerticale(event.target.value);
-    setSelectedSource(''); // Reset selectedSource when verticale changes
-  };
-  const handleSourceChange = (event) => {
-    // Add this function
-    setSelectedSource(event.target.value);
-  };
+    };
+
+    fetchVerticals();
+  }, []); 
 
   return (
     <DashboardCard sx={{ padding: '0px' }} title="Sélection">
@@ -83,16 +68,10 @@ function Selection() {
       {/* Begin:: select verticales */}
       <FormControl fullWidth>
         <InputLabel id="verticales-label">Verticales</InputLabel>
-        <Select
-          labelId="verticales-label"
-          id="verticales-select"
-          value={selectedVerticale}
-          onChange={handleVerticaleChange}
-          label="Verticale"
-        >
-          {verticales.map((vertical) => (
-            <MenuItem key={vertical.id} value={vertical.id}>
-              {vertical.name}
+        <Select labelId="verticales-label" id="verticales-select" label="Verticale">
+          {verticals.map((get_vertical, index) => (
+            <MenuItem key={index} value={get_vertical.vertical_id}>
+              {get_vertical.vertical_code}
             </MenuItem>
           ))}
         </Select>
@@ -106,14 +85,9 @@ function Selection() {
             labelId="sources-label"
             id="sources-select"
             label="Source"
-            value={selectedSource}
-            onChange={handleSourceChange}
           >
-            {sources.map((source) => (
-              <MenuItem key={source.id} value={source.id}>
-                {source.name}
+              <MenuItem >
               </MenuItem>
-            ))}
           </Select>
         </FormControl>
       </Box>
