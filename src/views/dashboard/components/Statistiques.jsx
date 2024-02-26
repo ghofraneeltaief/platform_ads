@@ -1,8 +1,8 @@
 import React from 'react';
 import DashboardCard from '../../../components/shared/DashboardCard';
 import { Typography, Grid } from '@mui/material';
-import Box from '@mui/material/Box'; // Importer Box de Material-UI pour ajouter de l'espace
-import Divider from '@mui/material/Divider'; // Importer Divider de Material-UI pour ajouter un séparateur
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 
 function Statistiques() {
   return (
@@ -31,11 +31,18 @@ function Statistiques() {
         {/* End:: card canal */}
         {/* Begin:: card source */}
         <Grid item xs={12} lg={6}>
-          <DashboardCard
-            backgroundColor="#080655"
-            color="white"
-            title="Source d’acquition"
-          ></DashboardCard>
+          <DashboardCard backgroundColor="#080655" color="white" title="Source d’acquition">
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Grid container>
+                <Grid item xs={12} lg={6}>
+                  <Typography variant="h9">Facebook</Typography>
+                </Grid>
+                <Grid item xs={12} lg={6} sx={{ textAlign: 'end' }}>
+                  <Typography variant="h9">12</Typography>
+                </Grid>
+              </Grid>
+            </Box>
+          </DashboardCard>
         </Grid>
         {/* End:: card source */}
       </Grid>

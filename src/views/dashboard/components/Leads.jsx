@@ -8,7 +8,6 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Button,
 } from '@mui/material';
 import DashboardCard from '../../../components/shared/DashboardCard';
 
@@ -16,7 +15,7 @@ function Leads() {
   return (
     <DashboardCard >
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5" mr={15}>
+        <Typography variant="h5" mr={25}>
           Leads Log
         </Typography>
         <Typography sx={{ backgroundColor: '#67B7DC', color: 'white',padding:"10px" }} variant="h6" mr={5}>
