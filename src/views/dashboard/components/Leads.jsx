@@ -36,9 +36,6 @@ function Leads() {
           label="Rechercher"
           variant="outlined"
         />
-        <Button variant="contained" sx={{ ml: 1 }} size="large">
-          Filtrer
-        </Button>
       </Box>
       <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
         {/* Begin:: table */}

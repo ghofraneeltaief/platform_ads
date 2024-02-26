@@ -1,2 +1,2 @@
-export const BASE_URL = 'http://localhost:4000';
-export const API_VERSION = 'api';
+export const BASE_URL = 'https://ads.hipto.com/api';
+export const api_version = 'v1.0';

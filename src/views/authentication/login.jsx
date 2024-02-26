@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Grid, Button } from '@mui/material';
-import axios from 'axios';
-import { BASE_URL, API_VERSION} from './config';
+import { BASE_URL , api_version } from './config';
 import logo from '../../assets/images/logos/logo.png';
 import logo_2 from '../../assets/images/logos/logo-2.png';
 import { useNavigate } from 'react-router-dom'; // Importer useNavigate depuis React Router
@@ -14,21 +13,36 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post(`${BASE_URL}/${API_VERSION}/token`, { email, password });
-      localStorage.setItem('accessToken', response.data.accessToken);
-      console.log(response.data.accessToken);
-      setError('');
-      navigate('/Pioche'); // Naviguer vers la page "Pioche" après connexion réussie
-    } catch (error) {
-      console.log("Nom d'utilisateur ou mot de passe incorrect");
-      setError("Nom d'utilisateur ou mot de passe incorrect");
-    }
+    const myHeaders = new Headers();
+    myHeaders.append("Cookie", "hp_ads_session=r1dl4e070nskkeul3pt40hnb6ga761qf");
+    const formdata = new FormData();
+    formdata.append("user_email", email);
+    formdata.append("user_password", password);
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: formdata,
+      redirect: "follow"
+    };
+    fetch(`${BASE_URL}/${api_version}/token`, requestOptions)
+    .then((response) => {
+      if (response.ok) {
+        return response.text(); // Récupérer le token depuis la réponse
+      } else {
+        // Gestion des erreurs en cas d'échec de connexion
+        throw new Error('Identifiants invalides');
+      }
+    })
+    .then((token) => {
+      // Stocker le token dans le localStorage
+      localStorage.setItem('token', token);
+      // Redirection vers la page suivante après une connexion réussie
+      navigate('/Pioche');
+    })
+    .catch((error) => setError(error.message));
   };
-
   return (
     <Grid container className="centered-container">
       {/* Begin:: card canal */}
@@ -43,8 +57,6 @@ const Login = () => {
         <div className="separator separator-content my-14">
           <span className="text">...et bon travail</span>
         </div>
-        {/* begin::Form */}
-        {error && <p className="message">{error}</p>}
         {/* begin::Form */}
         {error && <p className="message">{error}</p>}
         <Box>
