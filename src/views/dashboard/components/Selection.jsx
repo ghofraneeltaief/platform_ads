@@ -82,17 +82,17 @@ function Selection() {
       {/* End:: Période */}
       {/* Begin:: select verticales */}
       <FormControl fullWidth>
-        <InputLabel id="sources-label">Sources</InputLabel>
+        <InputLabel id="verticales-label">Verticales</InputLabel>
         <Select
-          labelId="sources-label"
-          id="sources-select"
-          label="Source"
-          value={selectedSource}
-          onChange={handleSourceChange}
+          labelId="verticales-label"
+          id="verticales-select"
+          value={selectedVerticale}
+          onChange={handleVerticaleChange}
+          label="Verticale"
         >
-          {sources.map((source) => (
-            <MenuItem key={source.id} value={source.id}>
-              {source.name}
+          {verticales.map((vertical) => (
+            <MenuItem key={vertical.id} value={vertical.id}>
+              {vertical.name}
             </MenuItem>
           ))}
         </Select>
