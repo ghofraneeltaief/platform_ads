@@ -15,7 +15,7 @@ const Router = [
     children: [
       { path: '/', element: <Navigate to="/login" /> }, 
       { path: '/login', element: <Login /> }, 
-      { path: '*', element: <Navigate to="/auth/404" /> },
+      { path: '*', element: <Navigate to="/login/404" /> },
     ],
   },
   {
@@ -23,7 +23,7 @@ const Router = [
     element: <FullLayout />,
     children: [
       { path: '/Pioche', exact: true, element: <Pioche /> },
-      { path: '*', element: <Navigate to="/auth/404" /> },
+      { path: '*', element: <Navigate to="/Pioche/404" /> },
     ],
   },
 ];

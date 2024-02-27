@@ -15,16 +15,12 @@ const Login = () => {
   const [error, setError] = useState('');
   const handleSubmit = (e) => {
     e.preventDefault();
-    const myHeaders = new Headers();
-    myHeaders.append("Cookie", "hp_ads_session=r1dl4e070nskkeul3pt40hnb6ga761qf");
     const formdata = new FormData();
     formdata.append("user_email", email);
     formdata.append("user_password", password);
     const requestOptions = {
       method: "POST",
-      headers: myHeaders,
-      body: formdata,
-      redirect: "follow"
+      body: formdata
     };
     fetch(`${BASE_URL}/${api_version}/token`, requestOptions)
     .then((response) => {

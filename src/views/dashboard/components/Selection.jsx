@@ -9,11 +9,13 @@ import Divider from '@mui/material/Divider';
 import { Grid } from '@mui/material';
 import { Typography } from '@mui/material';
 import './selection.css';
-import { BASE_URL , api_version } from '../../authentication/config';
+import { BASE_URL, api_version } from '../../authentication/config';
+import { useNavigate } from 'react-router-dom';
+
 function Selection() {
-  const [verticals, setVerticals] = useState([]);
+  // Begin //
   async function getToken() {
-    // Code pour récupérer le token JWT, par exemple depuis le localStorage
+    // Code pour récupérer le token JWT, depuis le localStorage
     const token = localStorage.getItem('token');
     if (token) {
       return token;
@@ -22,10 +24,13 @@ function Selection() {
       throw new Error('No token available');
     }
   }
+ // End //
+ // Begin //
+  const [verticals, setVerticals] = useState([]);
   useEffect(() => {
     const fetchVerticals = async () => {
       try {
-        const token = await getToken(); // Fonction pour récupérer le token JWT
+        const token = await getToken();
         const responseObject = JSON.parse(token);
         const accessToken = responseObject.access_token;
         const requestOptions = {
@@ -36,14 +41,22 @@ function Selection() {
         const response = await fetch(`${BASE_URL}/${api_version}/verticals`, requestOptions);
         const data = await response.json();
         console.log(data);
-        setVerticals(data);
+        setVerticals(await data);
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchVerticals();
-  }, []); 
+  }, []);
+  // End //
+  
+  const navigate = useNavigate();
+  const [selectedVerticalId, setSelectedVerticalId] = useState('');
+  const handleVerticalSelect = (event) => {
+    const verticalId = event.target.value;
+    setSelectedVerticalId(verticalId);
+  };
 
   return (
     <DashboardCard sx={{ padding: '0px' }} title="Sélection">
@@ -58,17 +71,29 @@ function Selection() {
       </Typography>
       <Grid container>
         <Grid item xs={12} sx={{ marginRight: '30px', width: '500px' }} lg={5}>
-          <input type="date" className="form-control" style={{ width: '145px' }} />
+          <Typography variant="p" sx={{ fontWeight: '400' }} mb={1}>
+            De :
+          </Typography>
+          <input type="date" className="form-control" />
         </Grid>
         <Grid item xs={12} lg={5}>
-          <input type="date" className="form-control" style={{ width: '145px' }} />
+          <Typography variant="p" sx={{ fontWeight: '400' }} mb={1}>
+            à :
+          </Typography>
+          <input type="date" className="form-control" />
         </Grid>
       </Grid>
       {/* End:: Période */}
       {/* Begin:: select verticales */}
       <FormControl fullWidth>
         <InputLabel id="verticales-label">Verticales</InputLabel>
-        <Select labelId="verticales-label" id="verticales-select" label="Verticale">
+        <Select
+          labelId="verticales-label"
+          id="verticales-select"
+          label="Verticale"
+          value={selectedVerticalId}
+          onChange={handleVerticalSelect}
+        >
           {verticals.map((get_vertical, index) => (
             <MenuItem key={index} value={get_vertical.vertical_id}>
               {get_vertical.vertical_code}
@@ -81,13 +106,8 @@ function Selection() {
       <Box my={2}>
         <FormControl fullWidth>
           <InputLabel id="sources-label">Sources</InputLabel>
-          <Select
-            labelId="sources-label"
-            id="sources-select"
-            label="Source"
-          >
-              <MenuItem >
-              </MenuItem>
+          <Select labelId="sources-label" id="sources-select" label="Source">
+            <MenuItem></MenuItem>
           </Select>
         </FormControl>
       </Box>
