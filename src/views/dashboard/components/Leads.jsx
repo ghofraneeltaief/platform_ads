@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Box,
@@ -10,33 +10,65 @@ import {
   TextField,
 } from '@mui/material';
 import DashboardCard from '../../../components/shared/DashboardCard';
-import { useParams } from 'react-router-dom';
+import { BASE_URL, api_version } from '../../authentication/config';
 
-function Leads() {
-  const { verticalId } = useParams();
+function Leads({ selectedVerticalId,selectedDateFrom,selectedDateTo }) {
+
+  const [tableHeaders, setTableHeaders] = useState([]);
+  useEffect(() => {
+    fetchTableHeaders();
+  }, []);
+  const fetchTableHeaders = async () => {
+    try {
+      const requestOptions = {
+        method: 'GET',
+      };
+      const response = await fetch(
+        `${BASE_URL}/${api_version}/pioche/headers/${selectedVerticalId}${selectedDateFrom}${selectedDateTo}`,
+        requestOptions,
+      );
+      const data = await response.json();
+      setTableHeaders(data); // Mettre à jour l'état avec les en-têtes de colonne récupérés depuis l'API
+    } catch (error) {
+      console.error('Erreur lors de la récupération des en-têtes de colonne :', error);
+    }
+  };
+
   return (
-    <DashboardCard >
+    <DashboardCard>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <Typography variant="h5" mr={25}>
           Leads Log
         </Typography>
-        <Typography sx={{ backgroundColor: '#67B7DC', color: 'white',padding:"10px" }} variant="h7" mr={5}>
+        <Typography
+          sx={{ backgroundColor: '#67B7DC', color: 'white', padding: '10px' }}
+          variant="h7"
+          mr={5}
+        >
           Plateform
         </Typography>
-        <Typography sx={{ backgroundColor: '#626DD2', color: 'white',padding:"10px"}} variant="h7" mr={5}>
+        <Typography
+          sx={{ backgroundColor: '#626DD2', color: 'white', padding: '10px' }}
+          variant="h7"
+          mr={5}
+        >
           Coordonnées
         </Typography>
-        <Typography sx={{ backgroundColor: '#A367DC', color: 'white',padding:"10px" }} variant="h7" mr={5}>
+        <Typography
+          sx={{ backgroundColor: '#A367DC', color: 'white', padding: '10px' }}
+          variant="h7"
+          mr={5}
+        >
           Client
         </Typography>
-        <Typography sx={{ backgroundColor: '#DC67AB', color: 'white',padding:"10px" }} variant="h7" mr={18}>
+        <Typography
+          sx={{ backgroundColor: '#DC67AB', color: 'white', padding: '10px' }}
+          variant="h7"
+          mr={18}
+        >
           Marketing
         </Typography>
-        <TextField
-          id="outlined-basic"
-          label="Rechercher"
-          variant="outlined"
-        />
+        <TextField id="outlined-basic" label="Rechercher" variant="outlined" />
       </Box>
       <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
         {/* Begin:: table */}
@@ -85,51 +117,14 @@ function Leads() {
                   Téléphone
                 </Typography>
               </TableCell>
-              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }}>
+              {/* Générer dynamiquement les balises th en fonction des données d'en-tête */}
+            {tableHeaders.map(header => (
+              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }} key={header.field}>
                 <Typography variant="subtitle2" fontWeight={600}>
-                  Opt in
+                {header.label}
                 </Typography>
               </TableCell>
-              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Ville
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Prénom Conseiller
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Situation Actuelle
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Spécialisation souhaitee
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Module formation
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Type formation
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Niveau études
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#A367DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Disponibilité
-                </Typography>
-              </TableCell>
+            ))}
               <TableCell sx={{ backgroundColor: '#DC67AB', color: 'white' }}>
                 <Typography variant="subtitle2" fontWeight={600}>
                   Canal

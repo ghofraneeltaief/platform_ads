@@ -10,10 +10,8 @@ import { Grid } from '@mui/material';
 import { Typography } from '@mui/material';
 import './selection.css';
 import { BASE_URL, api_version } from '../../authentication/config';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
-function Selection() {
+function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
   // Begin //
   async function getToken() {
     // Code pour récupérer le token JWT, depuis le localStorage
@@ -25,8 +23,8 @@ function Selection() {
       throw new Error('No token available');
     }
   }
- // End //
- // Begin //
+  // End //
+  // Begin //
   const [verticals, setVerticals] = useState([]);
   useEffect(() => {
     const fetchVerticals = async () => {
@@ -35,13 +33,9 @@ function Selection() {
         const responseObject = JSON.parse(token);
         const accessToken = responseObject.access_token;
         const requestOptions = {
-          methode: "GET",
-          headers: {
-            'Hipto-Authorization': accessToken,
-          },
-          redirect: "follow"
+          methode: 'GET',
         };
-        const response = await axios.get(`${BASE_URL}/${api_version}/verticals`, requestOptions);
+        const response = await fetch(`${BASE_URL}/${api_version}/verticals`, requestOptions);
         const data = await response.json();
         console.log(data);
         setVerticals(await data);
@@ -49,32 +43,31 @@ function Selection() {
         console.error(error);
       }
     };
-
     fetchVerticals();
   }, []);
   // End //
 
-  const navigate = useNavigate();
   const [selectedVerticalId, setSelectedVerticalId] = useState('');
+  const [sources, setSources] = useState([]);
   const handleVerticalSelect = (event) => {
     const verticalId = event.target.value;
     setSelectedVerticalId(verticalId);
+    onVerticalSelect(verticalId);
   };
-  const [selectedVertical, setSelectedVertical] = useState('');
-  const [sources, setSources] = useState([]);
-useEffect(() => {
+  useEffect(() => {
     const fetchSources = async () => {
-      if (selectedVertical) {
+      if (selectedVerticalId) {
         try {
           const token = await getToken();
           const responseObject = JSON.parse(token);
           const accessToken = responseObject.access_token;
           const requestOptions = {
-            headers: {
-              'Hipto-Authorization': accessToken,
-            },
+            methode: 'GET',
           };
-          const response = await fetch(`${BASE_URL}/${api_version}/sources/${selectedVertical}`, requestOptions);
+          const response = await fetch(
+            `${BASE_URL}/${api_version}/sources/${selectedVerticalId}`,
+            requestOptions,
+          );
           const data = await response.json();
           setSources(data);
         } catch (error) {
@@ -83,7 +76,21 @@ useEffect(() => {
       }
     };
     fetchSources();
-  }, [selectedVertical]);
+  }, [selectedVerticalId]);
+
+  const [selectedDateFrom, setSelectedDateFrom] = useState(null);
+
+  const handleDateFromChange = (dateFrom) => {
+    setSelectedDateFrom(dateFrom);
+    onDateFromSelect(dateFrom); // Appel de la fonction pour envoyer la dateFrom sélectionnée
+  };
+
+  const [selectedDateTo, setSelectedDateTo] = useState(null);
+
+  const handleDateToChange = (dateTo) => {
+    setSelectedDateTo(dateTo);
+    onDateToSelect(dateTo); // Appel de la fonction pour envoyer la dateFrom sélectionnée
+  };
   return (
     <DashboardCard sx={{ padding: '0px' }} title="Sélection">
       {/* Begin:: separator */}
@@ -100,13 +107,13 @@ useEffect(() => {
           <Typography variant="p" sx={{ fontWeight: '400' }} mb={1}>
             De :
           </Typography>
-          <input type="date" className="form-control" />
+          <input type="date" className="form-control" value={selectedDateFrom} onChange={(e) => handleDateFromChange(e.target.value)} />
         </Grid>
         <Grid item xs={12} lg={5}>
           <Typography variant="p" sx={{ fontWeight: '400' }} mb={1}>
             à :
           </Typography>
-          <input type="date" className="form-control" />
+          <input type="date" className="form-control" value={selectedDateTo} onChange={(e) => handleDateToChange(e.target.value)}/>
         </Grid>
       </Grid>
       {/* End:: Période */}
@@ -132,11 +139,7 @@ useEffect(() => {
       <Box my={2}>
         <FormControl fullWidth>
           <InputLabel id="sources-label">Sources</InputLabel>
-          <Select
-            labelId="sources-label"
-            id="sources-select"
-            label="Source"
-          >
+          <Select labelId="sources-label" id="sources-select" label="Source">
             {sources.map((source, index) => (
               <MenuItem key={index} value={source.source_id}>
                 {source.source_name}
