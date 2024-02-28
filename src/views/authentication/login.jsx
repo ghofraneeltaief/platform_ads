@@ -20,12 +20,13 @@ const Login = () => {
     formdata.append("user_password", password);
     const requestOptions = {
       method: "POST",
-      body: formdata
+      body: formdata,
+      redirect: "follow"
     };
     fetch(`${BASE_URL}/${api_version}/token`, requestOptions)
     .then((response) => {
       if (response.ok) {
-        return response.text(); // Récupérer le token depuis la réponse
+        return response.text();
       } else {
         // Gestion des erreurs en cas d'échec de connexion
         throw new Error('Identifiants invalides');

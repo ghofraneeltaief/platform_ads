@@ -11,6 +11,7 @@ import { Typography } from '@mui/material';
 import './selection.css';
 import { BASE_URL, api_version } from '../../authentication/config';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Selection() {
   // Begin //
@@ -34,11 +35,13 @@ function Selection() {
         const responseObject = JSON.parse(token);
         const accessToken = responseObject.access_token;
         const requestOptions = {
+          methode: "GET",
           headers: {
             'Hipto-Authorization': accessToken,
           },
+          redirect: "follow"
         };
-        const response = await fetch(`${BASE_URL}/${api_version}/verticals`, requestOptions);
+        const response = await axios.get(`${BASE_URL}/${api_version}/verticals`, requestOptions);
         const data = await response.json();
         console.log(data);
         setVerticals(await data);
@@ -50,14 +53,37 @@ function Selection() {
     fetchVerticals();
   }, []);
   // End //
-  
+
   const navigate = useNavigate();
   const [selectedVerticalId, setSelectedVerticalId] = useState('');
   const handleVerticalSelect = (event) => {
     const verticalId = event.target.value;
     setSelectedVerticalId(verticalId);
   };
-
+  const [selectedVertical, setSelectedVertical] = useState('');
+  const [sources, setSources] = useState([]);
+useEffect(() => {
+    const fetchSources = async () => {
+      if (selectedVertical) {
+        try {
+          const token = await getToken();
+          const responseObject = JSON.parse(token);
+          const accessToken = responseObject.access_token;
+          const requestOptions = {
+            headers: {
+              'Hipto-Authorization': accessToken,
+            },
+          };
+          const response = await fetch(`${BASE_URL}/${api_version}/sources/${selectedVertical}`, requestOptions);
+          const data = await response.json();
+          setSources(data);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+    fetchSources();
+  }, [selectedVertical]);
   return (
     <DashboardCard sx={{ padding: '0px' }} title="Sélection">
       {/* Begin:: separator */}
@@ -106,8 +132,16 @@ function Selection() {
       <Box my={2}>
         <FormControl fullWidth>
           <InputLabel id="sources-label">Sources</InputLabel>
-          <Select labelId="sources-label" id="sources-select" label="Source">
-            <MenuItem></MenuItem>
+          <Select
+            labelId="sources-label"
+            id="sources-select"
+            label="Source"
+          >
+            {sources.map((source, index) => (
+              <MenuItem key={index} value={source.source_id}>
+                {source.source_name}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Box>
