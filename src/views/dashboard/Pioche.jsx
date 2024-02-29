@@ -8,37 +8,67 @@ import Statistique from './components/Statistiques';
 import Leads from './components/Leads';
 
 function Pioche() {
+  /* Begin: VerticalId */
   const [selectedVerticalId, setSelectedVerticalId] = useState(''); // Initialiser l'état avec l'ID vertical de l'URL
   const handleVerticalSelect = (verticalId) => {
     setSelectedVerticalId(verticalId); // Mettre à jour l'ID vertical lorsque sélectionné dans Selection
   };
-  const [selectedDateFrom, setSelectedDateFrom] = useState(null);
+  /* End: VerticalId */
 
+  /* Begin: Date From */
+  const [selectedDateFrom, setSelectedDateFrom] = useState(null);
   const handleDateFromSelect = (dateFrom) => {
     setSelectedDateFrom(dateFrom);
   };
-  const [selectedDateTo, setSelectedDateTo] = useState(null);
+  /* End: Date From */
 
+  /* Begin: Date To */
+  const [selectedDateTo, setSelectedDateTo] = useState(null);
   const handleDateToSelect = (dateTo) => {
     setSelectedDateTo(dateTo);
   };
+  /* End: Date To */
+
+  /* Begin: Canal Count */
+  const [CanalCount, setCanalCount] = useState(''); // Initialiser l'état avec l'ID vertical de l'URL
+  const handleCanalCount = (CanalCount) => {
+    setCanalCount(CanalCount); // Mettre à jour l'ID vertical lorsque sélectionné dans Selection
+  };
+  /* End: Canal Count */
+
+  /* Begin: Source Count */
+  const [SourceCount, setSourceCount] = useState('');
+  const handleSourceCount = (SourceCount) => {
+    setSourceCount(SourceCount);
+  };
+  /* End: Source Count */
   return (
     <PageContainer title="Pioche" description="this is Pioche">
       <Box>
         <Grid container spacing={3}>
           {/* Begin:: sélection */}
           <Grid item xs={12} lg={4}>
-            <Selection onVerticalSelect={handleVerticalSelect} onDateFromSelect={handleDateFromSelect} />
+            <Selection
+              onVerticalSelect={handleVerticalSelect}
+              onDateFromSelect={handleDateFromSelect}
+              onDateToSelect={handleDateToSelect}
+            />
           </Grid>
           {/* End:: sélection */}
           {/* Begin:: statistiques */}
           <Grid item xs={12} lg={8}>
-            <Statistique />
+            <Statistique CanalCount={CanalCount} SourceCount={SourceCount} />
           </Grid>
           {/* End:: statistiques */}
           {/* Begin:: Leads Log */}
           <Grid item xs={12}>
-            <Leads selectedVerticalId={selectedVerticalId} selectedDateFrom={selectedDateFrom} selectedDateTo={selectedDateTo} />
+            <Leads
+              selectedVerticalId={selectedVerticalId}
+              selectedDateFrom={selectedDateFrom}
+              selectedDateTo={selectedDateTo}
+              onCanalCount={handleCanalCount}
+              onSourceCount={handleSourceCount}
+            />
           </Grid>
           {/* End:: Leads Log */}
         </Grid>
