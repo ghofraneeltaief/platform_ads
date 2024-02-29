@@ -183,7 +183,7 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
       {/* End:: select Sources */}
       {/* Begin:: Button */}
       <Box my={2}>
-      <Button variant="contained" color='success'>
+      <Button variant="contained">
         Recalculer
       </Button>
       </Box>
