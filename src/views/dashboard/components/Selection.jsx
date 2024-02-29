@@ -181,13 +181,13 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
         </FormControl>
       </Box>
       {/* End:: select Sources */}
-      {/* Begin:: Button 
+      {/* Begin:: Button */}
       <Box my={2}>
-      <Button variant="contained" onClick={handleRecalculate}>
+      <Button variant="contained" color='success'>
         Recalculer
       </Button>
       </Box>
-       End:: Button */}
+       {/* End:: Button */}
     </DashboardCard>
   );
 }
