@@ -24,13 +24,16 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
   /* End: getToken */
   /* Begin: fetchVerticals */
   const [verticals, setVerticals] = useState([]);
+  const formdata = new FormData();
   const fetchVerticals = async () => {
     try {
       const token = await getToken();
       const responseObject = JSON.parse(token);
       const accessToken = responseObject.access_token;
+      formdata.append('Hipto-Authorization', accessToken);
       const requestOptions = {
-        methode: 'GET',
+        method: 'POST',
+        body: formdata,
       };
       const response = await fetch(`${BASE_URL}/${api_version}/verticals`, requestOptions);
       const data = await response.json();
@@ -58,8 +61,10 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
         const token = await getToken();
         const responseObject = JSON.parse(token);
         const accessToken = responseObject.access_token;
+        formdata.append('Hipto-Authorization', accessToken);
         const requestOptions = {
-          methode: 'GET',
+          method: 'POST',
+          body: formdata,
         };
         const response = await fetch(
           `${BASE_URL}/${api_version}/sources/?vertical_id=${selectedVerticalId}`,
@@ -78,7 +83,8 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
   /* End: fetchSources */
 
   /* Begin: selectedDateFrom */
-  const [selectedDateFrom, setSelectedDateFrom] = useState('');
+  const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10)); // Format YYYY-MM-DD
+
   const handleDateFromChange = (dateFrom) => {
     setSelectedDateFrom(dateFrom);
     onDateFromSelect(dateFrom); // Appel de la fonction pour envoyer la dateFrom sélectionnée
@@ -86,7 +92,7 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
   /* End: selectedDateFrom */
 
   /* Begin: selectedDateTo */
-  const [selectedDateTo, setSelectedDateTo] = useState('');
+  const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10)); // Format YYYY-MM-DD
   const handleDateToChange = (dateTo) => {
     setSelectedDateTo(dateTo);
     onDateToSelect(dateTo); // Appel de la fonction pour envoyer la dateFrom sélectionnée
@@ -183,11 +189,9 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
       {/* End:: select Sources */}
       {/* Begin:: Button */}
       <Box my={2}>
-      <Button variant="contained">
-        Recalculer
-      </Button>
+        <Button variant="contained">Recalculer</Button>
       </Box>
-       {/* End:: Button */}
+      {/* End:: Button */}
     </DashboardCard>
   );
 }

@@ -20,15 +20,31 @@ function Leads({
   onCanalCount,
   onSourceCount,
 }) {
+  /* Begin: getToken */
+  async function getToken() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      return token;
+    } else {
+      throw new Error('No token available');
+    }
+  }
+  /* End: getToken */
   /* Begin: fetchTableHeaders fetchTableData */
   const [tableHeaders, setTableHeaders] = useState([]);
   const [tableData, setTableData] = useState([]);
+  const formdata = new FormData();
   useEffect(() => {
     const fetchTableHeaders = async () => {
       if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
         try {
+          const token = await getToken();
+          const responseObject = JSON.parse(token);
+          const accessToken = responseObject.access_token;
+          formdata.append('Hipto-Authorization', accessToken);
           const requestOptions = {
-            method: 'GET',
+            method: 'POST',
+            body: formdata,
           };
           const response = await fetch(
             `${BASE_URL}/${api_version}/pioche/headers?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}`,
@@ -47,8 +63,16 @@ function Leads({
     const fetchTableData = async () => {
       if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
         try {
+          const token = await getToken();
+          const responseObject = JSON.parse(token);
+          const accessToken = responseObject.access_token;
+          formdata.append('Hipto-Authorization', accessToken);
+          const requestOptions = {
+            method: 'POST',
+            body: formdata,
+          };
           const dataResponse = await fetch(
-            `${BASE_URL}/${api_version}/pioche/datas?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}`,
+            `${BASE_URL}/${api_version}/pioche/datas?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}`, requestOptions,
           );
           const data = await dataResponse.json();
           setTableData(data);
@@ -75,7 +99,7 @@ function Leads({
           });
           onCanalCount(counts);
         } catch (error) {
-          console.error('Erreur lors de la récupération des données du tableau :', error);
+          setError('Erreur lors de la récupération des données.', error);
         }
       }
     };
@@ -96,7 +120,7 @@ function Leads({
     setPage(0);
   };
   /* End: Pagination Table */
-
+  const [error, setError] = useState('');
   return (
     <DashboardCard>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -227,6 +251,13 @@ function Leads({
           </TableHead>
           {/* End:: table head */}
           {/* Begin:: table body */}
+          {tableData.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={tableHeaders.length + 8}>
+                  <Typography variant="body1">{error && <p className="message">{error}</p>}</Typography>
+                </TableCell>
+              </TableRow>
+            )}
           <TableBody>
             {tableData
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)

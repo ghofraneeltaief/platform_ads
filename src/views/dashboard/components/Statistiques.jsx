@@ -5,7 +5,6 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 
 function Statistiques({ CanalCount, SourceCount }) {
-  console.log("dhshdh",CanalCount);
   return (
     <DashboardCard title="Statistiques">
       {/* Begin:: séparateur */}
