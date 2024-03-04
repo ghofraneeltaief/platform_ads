@@ -29,7 +29,7 @@ const Login = () => {
         return response.text();
       } else {
         // Gestion des erreurs en cas d'échec de connexion
-        throw new Error('Identifiants invalides');
+        throw new Error('Email ou Mot de passe Invalide');
       }
     })
     .then((token) => {
