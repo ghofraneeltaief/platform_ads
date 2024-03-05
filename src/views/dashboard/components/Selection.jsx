@@ -11,7 +11,7 @@ import { Typography, Button } from '@mui/material';
 import './selection.css';
 import { BASE_URL, api_version } from '../../authentication/config';
 
-function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
+function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalculateClick }) {
   /* Begin: getToken */
   async function getToken() {
     const token = localStorage.getItem('token');
@@ -111,12 +111,19 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
     },
   };
   /* End: Style select */
-
-  /*const handleRecalculate = () => {
-  onDateFromSelect(selectedDateFrom);
-  onDateToSelect(selectedDateTo);
-  onVerticalSelect({ target: { value: selectedVerticalId } });
-  };*/
+  
+  /* Begin: Fonction Recalculate */
+  const handleRecalculate = () => {
+    setSelectedDateFrom(new Date().toISOString().substr(0, 10));
+    setSelectedDateTo(new Date().toISOString().substr(0, 10));
+    setSelectedVerticalId('');
+    onDateFromSelect(new Date().toISOString().substr(0, 10));
+    onDateToSelect(new Date().toISOString().substr(0, 10));
+    onVerticalSelect('');
+    onRecalculateClick();
+    setSources([]);
+  };
+  /* End: Fonction Recalculate */
 
   return (
     <DashboardCard sx={{ padding: '0px' }} title="Sélection">
@@ -189,7 +196,7 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect }) {
       {/* End:: select Sources */}
       {/* Begin:: Button */}
       <Box my={2}>
-        <Button variant="contained">Recalculer</Button>
+        <Button variant="contained" onClick={handleRecalculate}>Recalculer</Button>
       </Box>
       {/* End:: Button */}
     </DashboardCard>

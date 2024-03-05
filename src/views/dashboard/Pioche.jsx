@@ -42,6 +42,15 @@ function Pioche() {
     setSourceCount(SourceCount);
   };
   /* End: Source Count */
+
+  /* Begin: Fonction pour réinitialiser les données du tableau et statistiques */
+  const [tableDataVide, settableDataVide] = useState([]);
+  const handleRecalculateClick = () => {
+    settableDataVide([]); // Réinitialisation des données du tableau à un tableau vide
+    setCanalCount('');
+    setSourceCount('');
+  };
+  /* End: Source Count */
   return (
     <PageContainer title="Pioche" description="this is Pioche">
       <Box>
@@ -52,6 +61,7 @@ function Pioche() {
               onVerticalSelect={handleVerticalSelect}
               onDateFromSelect={handleDateFromSelect}
               onDateToSelect={handleDateToSelect}
+              onRecalculateClick={handleRecalculateClick}
             />
           </Grid>
           {/* End:: sélection */}
@@ -68,6 +78,7 @@ function Pioche() {
               selectedDateTo={selectedDateTo}
               onCanalCount={handleCanalCount}
               onSourceCount={handleSourceCount}
+              tableDataVide={tableDataVide}
             />
           </Grid>
           {/* End:: Leads Log */}

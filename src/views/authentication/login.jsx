@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Grid, Button } from '@mui/material';
-import { BASE_URL , api_version } from './config';
+import { BASE_URL, api_version } from './config';
 import logo from '../../assets/images/logos/logo.png';
 import logo_2 from '../../assets/images/logos/logo-2.png';
 import { useNavigate } from 'react-router-dom'; // Importer useNavigate depuis React Router
@@ -16,36 +16,40 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formdata = new FormData();
-    formdata.append("user_email", email);
-    formdata.append("user_password", password);
+    formdata.append('user_email', email);
+    formdata.append('user_password', password);
     const requestOptions = {
-      method: "POST",
+      method: 'POST',
       body: formdata,
-      redirect: "follow"
+      redirect: 'follow',
     };
     fetch(`${BASE_URL}/${api_version}/token`, requestOptions)
-    .then((response) => {
-      if (response.ok) {
-        return response.text();
-      } else {
-        // Gestion des erreurs en cas d'échec de connexion
-        throw new Error('Email ou Mot de passe Invalide');
-      }
-    })
-    .then((token) => {
-      // Stocker le token dans le localStorage
-      localStorage.setItem('token', token);
-      // Redirection vers la page suivante après une connexion réussie
-      navigate('/Pioche');
-    })
-    .catch((error) => setError(error.message));
+      .then((response) => {
+        if (response.ok) {
+          return response.text();
+        } else {
+          // Gestion des erreurs en cas d'échec de connexion
+          throw new Error('Email ou Mot de passe Invalide');
+        }
+      })
+      .then((token) => {
+        // Stocker le token dans le localStorage
+        localStorage.setItem('token', token);
+        // Redirection vers la page suivante après une connexion réussie
+        navigate('/Pioche');
+      })
+      .catch((error) => setError(error.message));
+    /*fetch(`${BASE_URL}/${api_version}/debug`, requestOptions).then((reponse) => {
+      const data = reponse.json();
+      console.log("qhkfekufh",data);
+    });*/
   };
   return (
     <Grid container className="centered-container">
       {/* Begin:: card canal */}
       <Grid item xs={6} className="grid-left centered-item">
         {/* begin::Logo */}
-          <img alt="Logo" src={logo} className="logo-1" />
+        <img alt="Logo" src={logo} className="logo-1" />
         {/* end::Logo */}
         {/* begin::Title */}
         <h1 className="titre-1">Connexion à votre compte</h1>
@@ -87,7 +91,7 @@ const Login = () => {
       </Grid>
       <Grid item xs={6} className="grid-right centered-item">
         {/* begin::Logo */}
-          <img alt="Logo" className="logo-2" src={logo_2} />
+        <img alt="Logo" className="logo-2" src={logo_2} />
         {/* end::Logo */}
         {/* begin::Title */}
         <h1 className="titre-2">The lead generation 🧢</h1>

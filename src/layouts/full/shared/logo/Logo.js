@@ -12,7 +12,7 @@ const LinkStyled = styled(Link)(() => ({
 const Logo = () => {
   return (
     <LinkStyled to="/Pioche">
-      <img src={logo} alt="Logo" height={90} />
+      <img src={logo} alt="Logo" height={80} />
     </LinkStyled>
   )
 };

@@ -24,9 +24,11 @@ function Statistiques({ CanalCount, SourceCount }) {
                       <Typography variant="h9" key={index}>
                         {canal}
                       </Typography>
+                      <hr />
                     </Grid>
                     <Grid item xs={12} lg={6} sx={{ textAlign: 'end' }}>
                       <Typography variant="h9">{CanalCount[canal]}</Typography>
+                      <hr />
                     </Grid>
                   </>
                 ))}
@@ -44,9 +46,11 @@ function Statistiques({ CanalCount, SourceCount }) {
                   <>
                     <Grid item xs={12} lg={6}>
                       <Typography variant="h9">{Source}</Typography>
+                      <hr />
                     </Grid>
                     <Grid item xs={12} lg={6} sx={{ textAlign: 'end' }}>
                       <Typography variant="h9">{SourceCount[Source]}</Typography>
+                      <hr />
                     </Grid>
                   </>
                 ))}

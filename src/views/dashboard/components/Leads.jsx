@@ -9,9 +9,14 @@ import {
   TableRow,
   TextField,
   TablePagination,
+  Modal,
+  Button,
+  Alert,
+  Grid,
 } from '@mui/material';
 import DashboardCard from '../../../components/shared/DashboardCard';
 import { BASE_URL, api_version } from '../../authentication/config';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 function Leads({
   selectedVerticalId,
@@ -19,6 +24,7 @@ function Leads({
   selectedDateTo,
   onCanalCount,
   onSourceCount,
+  tableDataVide,
 }) {
   /* Begin: getToken */
   async function getToken() {
@@ -30,7 +36,7 @@ function Leads({
     }
   }
   /* End: getToken */
-  /* Begin: fetchTableHeaders fetchTableData */
+  /* Begin: fetchTableHeaders fetchVide */
   const [tableHeaders, setTableHeaders] = useState([]);
   const [tableData, setTableData] = useState([]);
   const formdata = new FormData();
@@ -54,7 +60,7 @@ function Leads({
           setTableHeaders(data);
           // Mettre à jour l'état avec les en-têtes de colonne récupérés depuis l'API
         } catch (error) {
-          console.error('Erreur lors de la récupération des en-têtes de colonne :', error);
+          setError('Erreur lors de la récupération des en-têtes de colonne');
         }
       }
     };
@@ -72,18 +78,29 @@ function Leads({
             body: formdata,
           };
           const dataResponse = await fetch(
-            `${BASE_URL}/${api_version}/pioche/datas?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}`, requestOptions,
+            `${BASE_URL}/${api_version}/pioche/datas?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}`,
+            requestOptions,
           );
           const data = await dataResponse.json();
           setTableData(data);
           // Compter le nombre d'occurrences pour chaque valeur de Source
           const countsSource = {};
           data.forEach((item) => {
-            const Source = item.utm_source;
-            if (countsSource[Source]) {
-              countsSource[Source] += 1;
+            if (item.utm_source !== null) {
+              const Source = item.utm_source;
+              if (countsSource[Source]) {
+                countsSource[Source] += 1;
+              } else {
+                countsSource[Source] = 1;
+              }
             } else {
-              countsSource[Source] = 1;
+              // Si utm_source est null, changer la valeur à "Unorganized"
+              const Source = 'Unorganized';
+              if (countsSource[Source]) {
+                countsSource[Source] += 1;
+              } else {
+                countsSource[Source] = 1;
+              }
             }
           });
           onSourceCount(countsSource);
@@ -99,7 +116,7 @@ function Leads({
           });
           onCanalCount(counts);
         } catch (error) {
-          setError('Erreur lors de la récupération des données.', error);
+          setError('Erreur lors de la récupération des données.');
         }
       }
     };
@@ -108,6 +125,13 @@ function Leads({
     fetchTableData();
   }, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
   /* End: fetchTableData fetchTableHeaders */
+
+  /* Begin: fonction mettre le tableau vide */
+  useEffect(() => {
+    // Mettre à jour l'état du tableau avec les nouvelles données passées depuis Pioche
+    setTableData(tableDataVide);
+  }, [tableDataVide]);
+  /* End: fonction mettre le tableau vide */
 
   /* Begin: Pagination Table */
   const [page, setPage] = useState(0);
@@ -120,9 +144,55 @@ function Leads({
     setPage(0);
   };
   /* End: Pagination Table */
-  const [error, setError] = useState('');
+
+  const [error, setError] = useState(null);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (error) {
+      setIsErrorModalOpen(true);
+    }
+  }, [error]);
+
+  const handleCloseErrorModal = () => {
+    setIsErrorModalOpen(false);
+  };
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    height: 300,
+    bgcolor: '#2A3547',
+    borderRadius: '20px ',
+    boxShadow: 24,
+    p: 4,
+    color: '#fff',
+  };
   return (
     <DashboardCard>
+      <Modal
+        open={isErrorModalOpen}
+        onClose={handleCloseErrorModal}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box sx={style}>
+          <Grid container>
+            <Grid item xs={12} lg={6}></Grid>
+            <Grid item xs={12} lg={6} sx={{ textAlign: 'end' }}>
+              <Button sx={{ alignContent: 'end', color: '#fff' }} onClick={handleCloseErrorModal}>
+                X
+              </Button>
+            </Grid>
+            <Grid item xs={12} pt={9} sx={{ textAlign: 'center' }}>
+              <Typography severity="error"></Typography>
+              <Typography variant="h6">{error}</Typography>
+            </Grid>
+          </Grid>
+        </Box>
+      </Modal>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <Typography variant="h5" mr={25}>
           Leads Log
@@ -251,13 +321,6 @@ function Leads({
           </TableHead>
           {/* End:: table head */}
           {/* Begin:: table body */}
-          {tableData.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={tableHeaders.length + 8}>
-                  <Typography variant="body1">{error && <p className="message">{error}</p>}</Typography>
-                </TableCell>
-              </TableRow>
-            )}
           <TableBody>
             {tableData
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
