@@ -15,12 +15,11 @@ const NavItem = ({ item, level, pathDirect, onClick }) => {
 
   const ListItemStyled = styled(ListItem)(() => ({
     whiteSpace: 'nowrap',
-    marginBottom: '2px',
+    marginBottom: '5px',
     padding: '8px 10px',
     borderRadius: '8px',
     backgroundColor: level > 1 ? 'transparent !important' : 'inherit',
-    color:
-      theme.palette.text.secondary,
+    color:'white',
     paddingLeft: '20px',
     '&:hover': {
       backgroundColor: theme.palette.primary.light,
