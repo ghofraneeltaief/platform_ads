@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import DashboardCard from '../../../components/shared/DashboardCard';
 import { BASE_URL, api_version } from '../../authentication/config';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import Swal from 'sweetalert2';
 
 function Leads({
   selectedVerticalId,
@@ -60,6 +60,14 @@ function Leads({
           setTableHeaders(data);
           // Mettre à jour l'état avec les en-têtes de colonne récupérés depuis l'API
         } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            //title: 'Erreur de connexion',
+            text: 'Erreur lors de la récupération des en-têtes de colonne!',
+            width: '30%',
+            confirmButtonText: "Ok, j'ai compris!",
+            confirmButtonColor: '#0095E8',
+          });
           setError('Erreur lors de la récupération des en-têtes de colonne');
         }
       }
@@ -116,6 +124,15 @@ function Leads({
           });
           onCanalCount(counts);
         } catch (error) {
+          // Afficher la boîte de dialogue d'erreur
+          Swal.fire({
+            icon: 'error',
+            //title: 'Erreur de connexion',
+            text: 'Erreur lors de la récupération des données !',
+            width: '30%',
+            confirmButtonText: "Ok, j'ai compris!",
+            confirmButtonColor: '#0095E8',
+          });
           setError('Erreur lors de la récupération des données.');
         }
       }
@@ -146,53 +163,9 @@ function Leads({
   /* End: Pagination Table */
 
   const [error, setError] = useState(null);
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (error) {
-      setIsErrorModalOpen(true);
-    }
-  }, [error]);
-
-  const handleCloseErrorModal = () => {
-    setIsErrorModalOpen(false);
-  };
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    height: 300,
-    bgcolor: '#2A3547',
-    borderRadius: '20px ',
-    boxShadow: 24,
-    p: 4,
-    color: '#fff',
-  };
   return (
     <DashboardCard>
-      <Modal
-        open={isErrorModalOpen}
-        onClose={handleCloseErrorModal}
-        aria-labelledby="modal-title"
-        aria-describedby="modal-description"
-      >
-        <Box sx={style}>
-          <Grid container>
-            <Grid item xs={12} lg={6}></Grid>
-            <Grid item xs={12} lg={6} sx={{ textAlign: 'end' }}>
-              <Button sx={{ alignContent: 'end', color: '#fff' }} onClick={handleCloseErrorModal}>
-                X
-              </Button>
-            </Grid>
-            <Grid item xs={12} pt={9} sx={{ textAlign: 'center' }}>
-              <Typography severity="error"></Typography>
-              <Typography variant="h6">{error}</Typography>
-            </Grid>
-          </Grid>
-        </Box>
-      </Modal>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <Typography variant="h5" mr={25}>
           Leads Log

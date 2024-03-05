@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Grid, Button } from '@mui/material';
-import { BASE_URL, api_version } from './config';
+import { BASE_URL , api_version } from './config';
 import logo from '../../assets/images/logos/logo.png';
 import logo_2 from '../../assets/images/logos/logo-2.png';
 import { useNavigate } from 'react-router-dom'; // Importer useNavigate depuis React Router
 import './login.css';
 import Box from '@mui/material/Box'; // Importer Box de Material-UI pour ajouter de l'espace
 import Form from 'react-bootstrap/Form';
-
+import Swal from 'sweetalert2';
 const Login = () => {
   const navigate = useNavigate(); // Utiliser useNavigate pour la navigation
   const [email, setEmail] = useState('');
@@ -16,40 +16,57 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formdata = new FormData();
-    formdata.append('user_email', email);
-    formdata.append('user_password', password);
+    formdata.append("user_email", email);
+    formdata.append("user_password", password);
     const requestOptions = {
-      method: 'POST',
+      method: "POST",
       body: formdata,
-      redirect: 'follow',
+      redirect: "follow"
     };
     fetch(`${BASE_URL}/${api_version}/token`, requestOptions)
-      .then((response) => {
-        if (response.ok) {
-          return response.text();
-        } else {
-          // Gestion des erreurs en cas d'échec de connexion
-          throw new Error('Email ou Mot de passe Invalide');
-        }
-      })
-      .then((token) => {
-        // Stocker le token dans le localStorage
-        localStorage.setItem('token', token);
-        // Redirection vers la page suivante après une connexion réussie
+    .then((response) => {
+      if (response.ok) {
+        return response.text();
+      } else {
+        throw new Error('');
+      }
+    })
+    .then((token) => {
+      localStorage.setItem('token', token);
+      // Afficher la boîte de dialogue de succès avec le bouton "Ok" masqué
+      Swal.fire({
+        icon: 'success',
+        text: 'Top, connexion établie!',
+        customClass: {
+          popup: 'my-custom-modal',
+        },
+        width: '30%', // Définir la largeur du modal
+        showConfirmButton: false, // Masquer le bouton "Ok"
+        timer: 1000, // Fermer automatiquement après 10 secondes
+        //timerProgressBar: true // Afficher une barre de progression du temps restant
+      }).then(() => {
         navigate('/Pioche');
-      })
-      .catch((error) => setError(error.message));
-    /*fetch(`${BASE_URL}/${api_version}/debug`, requestOptions).then((reponse) => {
-      const data = reponse.json();
-      console.log("qhkfekufh",data);
-    });*/
+      });
+    })
+    .catch((error) => {
+      // Afficher la boîte de dialogue d'erreur
+      Swal.fire({
+        icon: 'error',
+        //title: 'Erreur de connexion',
+        text: 'Merci de vérifier vos paramètres de connexion!',
+        width: '30%',
+        confirmButtonText: "Ok, j'ai compris!",
+        confirmButtonColor: '#0095E8'
+      });
+      setError(error.message);
+    });
   };
   return (
     <Grid container className="centered-container">
       {/* Begin:: card canal */}
       <Grid item xs={6} className="grid-left centered-item">
         {/* begin::Logo */}
-        <img alt="Logo" src={logo} className="logo-1" />
+          <img alt="Logo" src={logo} className="logo-1" />
         {/* end::Logo */}
         {/* begin::Title */}
         <h1 className="titre-1">Connexion à votre compte</h1>
@@ -91,7 +108,7 @@ const Login = () => {
       </Grid>
       <Grid item xs={6} className="grid-right centered-item">
         {/* begin::Logo */}
-        <img alt="Logo" className="logo-2" src={logo_2} />
+          <img alt="Logo" className="logo-2" src={logo_2} />
         {/* end::Logo */}
         {/* begin::Title */}
         <h1 className="titre-2">The lead generation 🧢</h1>
@@ -100,5 +117,4 @@ const Login = () => {
     </Grid>
   );
 };
-
 export default Login;
