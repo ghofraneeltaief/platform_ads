@@ -78,8 +78,8 @@ function Component(onVerticalSelect, onDateFromSelect, onDateToSelect) {
   /* End: Style select */
   return (
     <>
-      <Grid container spacing={2}>
-        <Grid item xs={12} lg={3}>
+      <Grid container spacing={3}>
+        <Grid item xs={3}>
           {/* Begin:: select verticales */}
           <Typography variant="h6" sx={{ fontWeight: '400' }} mb={1}>
             Verticales
@@ -104,13 +104,13 @@ function Component(onVerticalSelect, onDateFromSelect, onDateToSelect) {
           </FormControl>
           {/* End:: select verticales */}
         </Grid>
-        <Grid item xs={12} lg={4}>
+        <Grid item xs={3.6}>
           {/* Begin:: Période */}
           <Typography variant="h6" sx={{ fontWeight: '400' }} >
             Période
           </Typography>
-          <Grid container>
-            <Grid item xs={12} sx={{ width: '500px' }} lg={5}>
+          <Grid container >
+            <Grid item xs={6}>
               <input
                 type="date"
                 className="form-control"
@@ -118,7 +118,7 @@ function Component(onVerticalSelect, onDateFromSelect, onDateToSelect) {
                 onChange={(e) => handleDateFromChange(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} lg={5}>
+            <Grid item xs={6}>
               <input
                 type="date"
                 className="form-control"
@@ -129,7 +129,7 @@ function Component(onVerticalSelect, onDateFromSelect, onDateToSelect) {
           </Grid>
           {/* End:: Période */}
         </Grid>
-        <Grid item xs={12} lg={3} spacing={2} display={'flex'} alignItems={'center'}>
+        <Grid item xs={4} display={'flex'} alignItems={'center'}>
           <Button variant="contained" sx={{ marginRight: '10px' }}>
             Recalculer
           </Button>
