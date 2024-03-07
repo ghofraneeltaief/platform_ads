@@ -143,6 +143,7 @@ function Leads({
   useEffect(() => {
     // Mettre à jour l'état du tableau avec les nouvelles données passées depuis Pioche
     setTableData(tableDataVide);
+    setTableHeaders(tableDataVide);
   }, [tableDataVide]);
   /* End: fonction mettre le tableau vide */
 
@@ -163,7 +164,7 @@ function Leads({
   return (
     <DashboardCard>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h5" mr={25}>
+        <Typography variant="h5" mr={15}>
           Leads Log
         </Typography>
         <Typography

@@ -106,7 +106,7 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
     PaperProps: {
       style: {
         maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
+        width: 270,
       },
     },
   };
@@ -136,8 +136,8 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
       <Typography variant="h6" sx={{ fontWeight: '400' }} mb={1}>
         Période
       </Typography>
-      <Grid container>
-        <Grid item xs={12} sx={{ marginRight: '30px', width: '500px' }} lg={5}>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
           <Typography variant="p" sx={{ fontWeight: '400' }} mb={1}>
             De :
           </Typography>
@@ -148,7 +148,7 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
             onChange={(e) => handleDateFromChange(e.target.value)}
           />
         </Grid>
-        <Grid item xs={12} lg={5}>
+        <Grid item xs={6}>
           <Typography variant="p" sx={{ fontWeight: '400' }} mb={1}>
             à :
           </Typography>

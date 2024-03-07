@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Grid, Box } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
 
+import { styled } from '@mui/material/styles';
+import Paper from '@mui/material/Paper';
 // components
 import Selection from './components/Selection';
 import Statistique from './components/Statistiques';
@@ -51,40 +53,40 @@ function Pioche() {
     setSourceCount('');
   };
   /* End: Source Count */
+  const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+  }));
+
   return (
-    <PageContainer title="Pioche" description="this is Pioche">
-      <Box>
-        <Grid container spacing={3}>
-          {/* Begin:: sélection */}
-          <Grid item xs={12} lg={4}>
-            <Selection
-              onVerticalSelect={handleVerticalSelect}
-              onDateFromSelect={handleDateFromSelect}
-              onDateToSelect={handleDateToSelect}
-              onRecalculateClick={handleRecalculateClick}
-            />
-          </Grid>
-          {/* End:: sélection */}
-          {/* Begin:: statistiques */}
-          <Grid item xs={12} lg={8}>
-            <Statistique CanalCount={CanalCount} SourceCount={SourceCount} />
-          </Grid>
-          {/* End:: statistiques */}
-          {/* Begin:: Leads Log */}
-          <Grid item xs={12}>
-            <Leads
-              selectedVerticalId={selectedVerticalId}
-              selectedDateFrom={selectedDateFrom}
-              selectedDateTo={selectedDateTo}
-              onCanalCount={handleCanalCount}
-              onSourceCount={handleSourceCount}
-              tableDataVide={tableDataVide}
-            />
-          </Grid>
-          {/* End:: Leads Log */}
-        </Grid>
+    <Box sx={{ width: 1 }}>
+      <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
+        <Box gridColumn="span 4">
+          <Selection
+            onVerticalSelect={handleVerticalSelect}
+            onDateFromSelect={handleDateFromSelect}
+            onDateToSelect={handleDateToSelect}
+            onRecalculateClick={handleRecalculateClick}
+          />
+        </Box>
+        <Box gridColumn="span 8">
+          <Statistique CanalCount={CanalCount} SourceCount={SourceCount} />
+        </Box>
+        <Box gridColumn="span 12">
+          <Leads
+            selectedVerticalId={selectedVerticalId}
+            selectedDateFrom={selectedDateFrom}
+            selectedDateTo={selectedDateTo}
+            onCanalCount={handleCanalCount}
+            onSourceCount={handleSourceCount}
+            tableDataVide={tableDataVide}
+          />
+        </Box>
       </Box>
-    </PageContainer>
+    </Box>
   );
 }
 
