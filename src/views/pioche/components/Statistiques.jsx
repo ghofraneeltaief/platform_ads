@@ -80,7 +80,7 @@ function Statistiques({ CanalCount, SourceCount }) {
                 {Object.keys(SourceCount).map((source, index) => (
                   <React.Fragment key={index}>
                     <Grid item xs={12} lg={6} pb={2}>
-                      <img src={LogoSocialNetworks[source.toLowerCase()]} width={25} />
+                      <img src={LogoSocialNetworks[source.toLowerCase()]} alt='' width={25} />
                       <Typography pl={1} variant="h9">{source}</Typography>
                     </Grid>
                     <Grid item xs={12} lg={6} sx={{ textAlign: 'end' }}>

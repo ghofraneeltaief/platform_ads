@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import { Grid, Box } from '@mui/material';
-import PageContainer from 'src/components/container/PageContainer';
-
-import { styled } from '@mui/material/styles';
-import Paper from '@mui/material/Paper';
+import { Box } from '@mui/material';
 // components
 import Selection from './components/Selection';
 import Statistique from './components/Statistiques';
@@ -53,13 +49,7 @@ function Pioche() {
     setSourceCount('');
   };
   /* End: Source Count */
-  const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  }));
+
 
   return (
     <Box sx={{ width: 1 }}>
