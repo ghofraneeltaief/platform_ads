@@ -3,29 +3,44 @@ import {
   Tabs,
   Tab,
   Box,
-  Typography,
   Table,
   TableHead,
   TableBody,
   TableRow,
   TableCell,
+  IconButton,
+  Collapse,
+  Typography,
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Component from './Component';
 import DashboardCard from '../../components/shared/DashboardCard';
 import './AdPlateform.css';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { TreeView } from '@mui/x-tree-view/TreeView';
-import { TreeItem } from '@mui/x-tree-view/TreeItem';
+import Switch from '@mui/material/Switch';
+import { TreeView, TreeItem } from '@mui/lab';
+
+const label = { inputProps: { 'aria-label': 'Switch demo' } };
 function TabPanel({ children, value, index }) {
   return <div hidden={value !== index}>{value === index && <div>{children}</div>}</div>;
 }
 
 function AdPlatform() {
   const [tabValue, setTabValue] = useState(0);
+  const [expanded, setExpanded] = useState(false);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  const handleExpandToggle = () => {
+    setExpanded(!expanded);
+  };
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleChange = () => {
+    setIsChecked(!isChecked);
   };
 
   return (
@@ -82,61 +97,119 @@ function AdPlatform() {
                   <Table>
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}></TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        ></TableCell>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           NAME ACCOUNT
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           ON/OFF
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           ID
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           CAMPAIGN
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           LEAD
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           DEPENSES
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           CPL
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           CTR
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           CPM
                         </TableCell>
-                        <TableCell sx={{ backgroundColor: '#4269F4', color: 'white' }}>
+                        <TableCell
+                          sx={{ backgroundColor: '#4269F4', color: 'white', textAlign: 'center' }}
+                        >
                           TC
                         </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
+                      
                       <TableRow>
-                      <TreeView
-        aria-label="multi-select"
-        defaultCollapseIcon={<ExpandMoreIcon />}
-        defaultExpandIcon={<ChevronRightIcon />}
-        multiSelect
-      >
-        <TreeItem nodeId="1" label="Applications">
-          <TreeItem nodeId="2" label="Calendar" />
-          <TreeItem nodeId="3" label="Chrome" />
-          <TreeItem nodeId="4" label="Webstorm" />
-        </TreeItem>
-        <TreeItem nodeId="5" label="Documents">
-          <TreeItem nodeId="6" label="MUI">
-            <TreeItem nodeId="7" label="src">
-              <TreeItem nodeId="8" label="index.js" />
-              <TreeItem nodeId="9" label="tree-view.js" />
-            </TreeItem>
-          </TreeItem>
-        </TreeItem>
-      </TreeView>
+                      <TableCell colSpan={11}>
+                <TreeView
+                  aria-label="treeview"
+                  defaultCollapseIcon={<ExpandMoreIcon />}
+                  defaultExpandIcon={<ChevronRightIcon />}
+                >
+                  <TreeItem nodeId="1" label={<TableRow>
+                          <TableCell>FIB_1</TableCell>
+                          <TableCell>
+                            <Switch {...label} />
+                          </TableCell>
+                          <TableCell>200</TableCell>
+                          <TableCell>14e-FOMO3-CC-LANDBOT</TableCell>
+                          <TableCell>80</TableCell>
+                          <TableCell>16</TableCell>
+                          <TableCell>20</TableCell>
+                          <TableCell>1</TableCell>
+                          <TableCell>2</TableCell>
+                          <TableCell>20</TableCell>
+                        </TableRow>}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>NAME ACCOUNT</TableCell>
+                          <TableCell>ON/OFF</TableCell>
+                          <TableCell>ID</TableCell>
+                          <TableCell>Adsets</TableCell>
+                          <TableCell>LEAD</TableCell>
+                          <TableCell>DEPENSES</TableCell>
+                          <TableCell>CPL</TableCell>
+                          <TableCell>CTR</TableCell>
+                          <TableCell>CPM</TableCell>
+                          <TableCell>TC</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>FIB_1</TableCell>
+                          <TableCell>
+                            <Switch {...label} />
+                          </TableCell>
+                          <TableCell>200</TableCell>
+                          <TableCell>14e-FOMO3-CC-LANDBOT</TableCell>
+                          <TableCell>80</TableCell>
+                          <TableCell>16</TableCell>
+                          <TableCell>20</TableCell>
+                          <TableCell>1</TableCell>
+                          <TableCell>2</TableCell>
+                          <TableCell>20</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TreeItem>
+                </TreeView>
+              </TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -279,9 +352,7 @@ function AdPlatform() {
                     <TableHead>
                       <TableRow className="gradient-background">
                         <TableCell sx={{ color: 'white' }}></TableCell>
-                        <TableCell sx={{ color: 'white' }}>
-                          NAME ACCOUNT
-                        </TableCell>
+                        <TableCell sx={{ color: 'white' }}>NAME ACCOUNT</TableCell>
                         <TableCell sx={{ color: 'white' }}>ON/OFF</TableCell>
                         <TableCell sx={{ color: 'white' }}>ID</TableCell>
                         <TableCell sx={{ color: 'white' }}>CAMPAIGN</TableCell>
