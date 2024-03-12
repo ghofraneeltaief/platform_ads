@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
-import {
-  Tabs,
-  Tab,
-  Box,
-  TableCell,
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Tabs, Tab, Box, Typography } from '@mui/material';
 import Component from './Component';
 import DashboardCard from '../../components/shared/DashboardCard';
 import './AdPlateform.css';
-import  Plateform_FB from './Plateforms/Plateform_FB';
-import  Plateform_Google from './Plateforms/Plateform_Google';
-import  Plateform_Snapchat from './Plateforms/Plateform_Snapchat';
-import  Plateform_Tiktok from './Plateforms/Plateform_Tiktok';
-import  Plateform_Bing from './Plateforms/Plateform_Bing';
-import  Plateform_Taboola from './Plateforms/Plateform_Taboola';
-import  Plateform_Outbrain from './Plateforms/Plateform_Outbrain';
+import PlateformFB from './Plateforms/Plateform_FB';
+import PlateformGoogle from './Plateforms/Plateform_Google';
+import PlateformSnapchat from './Plateforms/Plateform_Snapchat';
+import PlateformTiktok from './Plateforms/Plateform_Tiktok';
+import PlateformBing from './Plateforms/Plateform_Bing';
+import PlateformTaboola from './Plateforms/Plateform_Taboola';
+import PlateformOutbrain from './Plateforms/Plateform_Outbrain';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import { BASE_URL, api_version } from '../authentication/config';
 
+const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 const tabLabels = [
   { label: 'Facebook', backgroundColor: '#4269F4' },
   { label: 'Google', backgroundColor: '#0F9D58' },
@@ -32,6 +31,7 @@ const tabLabels = [
   { label: 'Taboola', backgroundColor: '#154a99' },
   { label: 'Outbrain', backgroundColor: '#f3a21d8a' },
 ];
+
 function TabPanel({ children, value, index }) {
   return <div hidden={value !== index}>{value === index && <div>{children}</div>}</div>;
 }
@@ -39,6 +39,41 @@ function TabPanel({ children, value, index }) {
 function AdPlatform() {
   const [tabValue, setTabValue] = useState(0);
   const [expanded, setExpanded] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+  const [socialNetworks, setSocialNetworks] = useState([]);
+/* Begin: getToken */
+async function getToken() {
+  const token = localStorage.getItem('token');
+  if (token) {
+    return token;
+  } else {
+    throw new Error('No token available');
+  }
+}
+/* End: getToken */
+const formdata = new FormData();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await getToken();
+        const responseObject = JSON.parse(token);
+        const accessToken = responseObject.access_token;
+        formdata.append('Hipto-Authorization', accessToken);
+        const requestOptions = {
+          method: 'POST',
+          body: formdata,
+        };
+        const response = await fetch(`${BASE_URL}/${api_version}/social_networks`, requestOptions);
+        const data = await response.json();
+        console.log(data);
+        setSocialNetworks(data); // Assuming data is an array of social networks
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, []); // Empty dependency array to execute only once after initial render
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -47,12 +82,11 @@ function AdPlatform() {
   const handleExpandToggle = () => {
     setExpanded(!expanded);
   };
-  const [isChecked, setIsChecked] = useState(false);
 
   const handleChange = () => {
     setIsChecked(!isChecked);
   };
-  
+
   return (
     <Box sx={{ width: 1 }}>
       <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
@@ -60,7 +94,45 @@ function AdPlatform() {
           <Component />
         </Box>
         <Box gridColumn="span 12">
-          <DashboardCard sx={{ padding: '0px' }} title="Ad platform">
+          <DashboardCard sx={{ padding: '0px' }}>
+          <Box sx={{ marginBottom: '30px', display: 'flex', alignItems: 'center' }}>
+              <Typography variant="subtitle1" sx={{ marginRight: '10px' }}>
+                Ad platform :
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Facebook"
+                  sx={{ marginRight: '10px' }}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Google"
+                  sx={{ marginRight: '10px' }}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Snapchat"
+                  sx={{ marginRight: '10px' }}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="TikTok"
+                  sx={{ marginRight: '10px' }}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Bing"
+                  sx={{ marginRight: '10px' }}
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Taboola"
+                  sx={{ marginRight: '10px' }}
+                />
+                <FormControlLabel control={<Checkbox />} label="Outbrain" />
+              </Box>
+            </Box>
             <Box sx={{ display: 'flex' }}>
               <Tabs
                 orientation="vertical"
@@ -81,33 +153,33 @@ function AdPlatform() {
                           : '#DCDCDC',
                       color: tabValue === index ? (tab.sx ? tab.sx.color : 'white') : 'black',
                       padding: '19.2px',
-                      ...(tabValue === index && tab.sx ? tab.sx : {}), 
+                      ...(tabValue === index && tab.sx ? tab.sx : {}),
                     }}
                   />
                 ))}
               </Tabs>
               <Box sx={{ flexGrow: 1 }}>
                 <TabPanel value={tabValue} index={0}>
-                  <Plateform_FB/>
+                  <PlateformFB />
                 </TabPanel>
 
                 <TabPanel value={tabValue} index={1}>
-                <Plateform_Google/>
+                  <PlateformGoogle />
                 </TabPanel>
                 <TabPanel value={tabValue} index={2}>
-                <Plateform_Snapchat/>
+                  <PlateformSnapchat />
                 </TabPanel>
                 <TabPanel value={tabValue} index={3}>
-                <Plateform_Tiktok/>
+                  <PlateformTiktok />
                 </TabPanel>
                 <TabPanel value={tabValue} index={4}>
-                <Plateform_Bing/>
+                  <PlateformBing />
                 </TabPanel>
                 <TabPanel value={tabValue} index={5}>
-                <Plateform_Taboola/>
+                  <PlateformTaboola />
                 </TabPanel>
                 <TabPanel value={tabValue} index={6}>
-                <Plateform_Outbrain/>
+                  <PlateformOutbrain />
                 </TabPanel>
               </Box>
             </Box>
