@@ -1,3 +1,5 @@
+//test
+import React, { useState, useEffect } from 'react';
 import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 // components
@@ -56,35 +58,30 @@ function Pioche() {
     setSelectedVerticalId(verticalId); // Mettre à jour l'ID vertical lorsque sélectionné dans Selection
   };
   /* End: VerticalId */
-
   /* Begin: Date From */
   const [selectedDateFrom, setSelectedDateFrom] = useState(null);
   const handleDateFromSelect = (dateFrom) => {
     setSelectedDateFrom(dateFrom);
   };
   /* End: Date From */
-
   /* Begin: Date To */
   const [selectedDateTo, setSelectedDateTo] = useState(null);
   const handleDateToSelect = (dateTo) => {
     setSelectedDateTo(dateTo);
   };
   /* End: Date To */
-
   /* Begin: Canal Count */
   const [CanalCount, setCanalCount] = useState(''); // Initialiser l'état avec l'ID vertical de l'URL
   const handleCanalCount = (CanalCount) => {
     setCanalCount(CanalCount); // Mettre à jour l'ID vertical lorsque sélectionné dans Selection
   };
   /* End: Canal Count */
-
   /* Begin: Source Count */
   const [SourceCount, setSourceCount] = useState('');
   const handleSourceCount = (SourceCount) => {
     setSourceCount(SourceCount);
   };
   /* End: Source Count */
-
   /* Begin: Fonction pour réinitialiser les données du tableau et statistiques */
   const [tableDataVide, settableDataVide] = useState([]);
   const handleRecalculateClick = () => {
@@ -122,5 +119,4 @@ function Pioche() {
     </Box>
   );
 }
-
 export default Pioche;

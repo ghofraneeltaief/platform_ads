@@ -17,3 +17,23 @@
   /* width: 100%;
   height: 100vh; */
 }
+.css-1nd4j3s-MuiTreeItem-content {
+  height: 55px;
+}
+
+.css-g0jugy-MuiCollapse-root-MuiTreeItem-group {
+  margin-left: 0px !important;
+}
+.css-e8kpoj-MuiTableCell-root {
+  padding: 0px !important;
+}
+.MuiTableCell-root .MuiTableCell-body{
+  padding: 0px !important;
+}
+.css-q4qtnq-MuiTableCell-root {
+  padding: 0px !important;
+}
+.tableRowOpen {
+  background-color: #87CEEB; /* Choisissez la couleur bleue que vous préférez */
+  color: white; /* Pour assurer que le texte est lisible sur le fond bleu */
+}
