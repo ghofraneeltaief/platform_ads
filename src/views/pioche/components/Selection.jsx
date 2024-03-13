@@ -113,16 +113,27 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
   /* End: Style select */
   
   /* Begin: Fonction Recalculate */
-  const handleRecalculate = () => {
-    setSelectedDateFrom(new Date().toISOString().substr(0, 10));
-    setSelectedDateTo(new Date().toISOString().substr(0, 10));
-    setSelectedVerticalId('');
-    onDateFromSelect(new Date().toISOString().substr(0, 10));
-    onDateToSelect(new Date().toISOString().substr(0, 10));
-    onVerticalSelect('');
-    onRecalculateClick();
-    setSources([]);
-  };
+  /* Begin: Fonction Recalculate */
+const handleRecalculate = async () => {
+  try {
+    // Appeler onVerticalSelect avec la valeur actuelle de selectedVerticalId
+    onVerticalSelect(selectedVerticalId);
+
+    // Passer la valeur actuelle de selectedDateFrom à onDateFromSelect
+    onDateFromSelect(selectedDateFrom);
+
+    // Passer la valeur actuelle de selectedDateTo à onDateToSelect
+    onDateToSelect(selectedDateTo);
+
+    // Vérifier si onRecalculateClick est défini avant de l'appeler
+    if (onRecalculateClick) {
+      // Appeler la fonction de rappel pour recalculer
+      onRecalculateClick();
+    } 
+  } catch (error){
+    console.error(error);
+  }
+};
   /* End: Fonction Recalculate */
 
   return (

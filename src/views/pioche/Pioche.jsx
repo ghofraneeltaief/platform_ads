@@ -82,13 +82,10 @@ function Pioche() {
   };
   /* End: Source Count */
   /* Begin: Fonction pour réinitialiser les données du tableau et statistiques */
-  const [tableDataVide, settableDataVide] = useState([]);
+  const [tableDataVide] = useState([]);
+
   const handleRecalculateClick = () => {
-    settableDataVide([]); // Réinitialisation des données du tableau à un tableau vide
-    setCanalCount('');
-    setSourceCount('');
   };
-  /* End: Source Count */
 
   return (
     <Box sx={{ width: 1 }}>
