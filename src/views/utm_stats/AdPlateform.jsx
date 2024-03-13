@@ -41,17 +41,17 @@ function AdPlatform() {
   const [expanded, setExpanded] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [socialNetworks, setSocialNetworks] = useState([]);
-/* Begin: getToken */
-async function getToken() {
-  const token = localStorage.getItem('token');
-  if (token) {
-    return token;
-  } else {
-    throw new Error('No token available');
+  /* Begin: getToken */
+  async function getToken() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      return token;
+    } else {
+      throw new Error('No token available');
+    }
   }
-}
-/* End: getToken */
-const formdata = new FormData();
+  /* End: getToken */
+  const formdata = new FormData();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -66,6 +66,9 @@ const formdata = new FormData();
         const response = await fetch(`${BASE_URL}/${api_version}/social_networks`, requestOptions);
         const data = await response.json();
         console.log(data);
+        LabelCheckbox.forEach((label) => {
+         const label2=label;
+        })
         setSocialNetworks(data); // Assuming data is an array of social networks
       } catch (error) {
         console.error(error);
@@ -86,6 +89,7 @@ const formdata = new FormData();
   const handleChange = () => {
     setIsChecked(!isChecked);
   };
+  const LabelCheckbox = ['Facebook', 'Google', 'Snapchat', 'TikTok', 'Bing', 'Taboola', 'Outbrain'];
 
   return (
     <Box sx={{ width: 1 }}>
@@ -95,42 +99,19 @@ const formdata = new FormData();
         </Box>
         <Box gridColumn="span 12">
           <DashboardCard sx={{ padding: '0px' }}>
-          <Box sx={{ marginBottom: '30px', display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ marginBottom: '30px', display: 'flex', alignItems: 'center' }}>
               <Typography variant="subtitle1" sx={{ marginRight: '10px' }}>
                 Ad platform :
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                <FormControlLabel
-                  control={<Checkbox />}
-                  label="Facebook"
-                  sx={{ marginRight: '10px' }}
-                />
-                <FormControlLabel
-                  control={<Checkbox />}
-                  label="Google"
-                  sx={{ marginRight: '10px' }}
-                />
-                <FormControlLabel
-                  control={<Checkbox />}
-                  label="Snapchat"
-                  sx={{ marginRight: '10px' }}
-                />
-                <FormControlLabel
-                  control={<Checkbox />}
-                  label="TikTok"
-                  sx={{ marginRight: '10px' }}
-                />
-                <FormControlLabel
-                  control={<Checkbox />}
-                  label="Bing"
-                  sx={{ marginRight: '10px' }}
-                />
-                <FormControlLabel
-                  control={<Checkbox />}
-                  label="Taboola"
-                  sx={{ marginRight: '10px' }}
-                />
-                <FormControlLabel control={<Checkbox />} label="Outbrain" />
+                {LabelCheckbox.map((label, index) => (
+                  <FormControlLabel
+                    key={index}
+                    control={<Checkbox />}
+                    label={label}
+                    sx={{ marginRight: '10px' }}
+                  />
+                ))}
               </Box>
             </Box>
             <Box sx={{ display: 'flex' }}>
