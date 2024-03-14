@@ -7,7 +7,7 @@ import Select from '@mui/material/Select';
 import '../pioche/components/selection.css';
 import { BASE_URL, api_version } from '../authentication/config';
 
-function Component(onVerticalSelect, onDateFromSelect, onDateToSelect) {
+function Component({onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalculateClick}) {
   /* Begin: getToken */
   async function getToken() {
     const token = localStorage.getItem('token');
@@ -76,6 +76,28 @@ function Component(onVerticalSelect, onDateFromSelect, onDateToSelect) {
     },
   };
   /* End: Style select */
+   /* Begin: Fonction Recalculate */
+const handleRecalculate = async () => {
+  try {
+    // Appeler onVerticalSelect avec la valeur actuelle de selectedVerticalId
+    onVerticalSelect(selectedVerticalId);
+
+    // Passer la valeur actuelle de selectedDateFrom à onDateFromSelect
+    onDateFromSelect(selectedDateFrom);
+
+    // Passer la valeur actuelle de selectedDateTo à onDateToSelect
+    onDateToSelect(selectedDateTo);
+
+    // Vérifier si onRecalculateClick est défini avant de l'appeler
+    if (onRecalculateClick) {
+      // Appeler la fonction de rappel pour recalculer
+      onRecalculateClick();
+    } 
+  } catch (error){
+    console.error(error);
+  }
+};
+  /* End: Fonction Recalculate */
   return (
     <>
       <Grid container spacing={3}>
@@ -130,7 +152,7 @@ function Component(onVerticalSelect, onDateFromSelect, onDateToSelect) {
           {/* End:: Période */}
         </Grid>
         <Grid item xs={4} display={'flex'} alignItems={'center'}>
-          <Button variant="contained" sx={{ marginRight: '10px' }}>
+          <Button variant="contained" onClick={handleRecalculate} sx={{ marginRight: '10px' }}>
             Recalculer
           </Button>
           <Button variant="contained" color="secondary">

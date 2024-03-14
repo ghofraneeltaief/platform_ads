@@ -67,7 +67,8 @@ function AdPlatform() {
         const data = await response.json();
         console.log(data);
         LabelCheckbox.forEach((label) => {
-         const label2=label;
+         if (label == null) {
+         }
         })
         setSocialNetworks(data); // Assuming data is an array of social networks
       } catch (error) {
@@ -91,11 +92,14 @@ function AdPlatform() {
   };
   const LabelCheckbox = ['Facebook', 'Google', 'Snapchat', 'TikTok', 'Bing', 'Taboola', 'Outbrain'];
 
+  const handleRecalculateClick = () => {
+  };
+
   return (
     <Box sx={{ width: 1 }}>
       <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
         <Box gridColumn="span 12">
-          <Component />
+          <Component onRecalculateClick={handleRecalculateClick} />
         </Box>
         <Box gridColumn="span 12">
           <DashboardCard sx={{ padding: '0px' }}>
