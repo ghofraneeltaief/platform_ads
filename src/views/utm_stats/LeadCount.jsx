@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import { Box } from '@mui/material';
 import Component from './Component';
 import TableLead from './component_leadCount/TableLead';
@@ -30,7 +30,7 @@ function LeadCount() {
     // Handle updated data here
     setdonneesGraphique(data);
   };
-  
+
   return (
     <Box sx={{ width: 1 }}>
       <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
@@ -44,7 +44,12 @@ function LeadCount() {
         <Box gridColumn="span 12">
           <DashboardCard sx={{ padding: '0px' }} title="Lead Count">
             <Box gridColumn="span 12">
-              <Graphique selectedVerticalId={selectedVerticalId} donnees={donneesGraphique} />
+              <Graphique
+                selectedVerticalId={selectedVerticalId}
+                selectedDateFrom={selectedDateFrom}
+                selectedDateTo={selectedDateTo}
+                donnees={donneesGraphique}
+              />
             </Box>
             <Box gridColumn="span 12" sx={{ paddingTop: '40px' }}>
               <TableLead

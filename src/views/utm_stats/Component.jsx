@@ -7,8 +7,7 @@ import Select from '@mui/material/Select';
 import '../pioche/components/selection.css';
 import { BASE_URL, api_version } from '../authentication/config';
 
-function Component({onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalculateClick}) {
-  /* Begin: getToken */
+function Component({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalculateClick }) {
   async function getToken() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -17,15 +16,13 @@ function Component({onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalc
       throw new Error('No token available');
     }
   }
-  /* End: getToken */
-  /* Begin: fetchVerticals */
-  const [verticals, setVerticals] = useState([]);
-  const formdata = new FormData();
+
   const fetchVerticals = async () => {
     try {
       const token = await getToken();
       const responseObject = JSON.parse(token);
       const accessToken = responseObject.access_token;
+      const formdata = new FormData();
       formdata.append('Hipto-Authorization', accessToken);
       const requestOptions = {
         method: 'POST',
@@ -33,38 +30,49 @@ function Component({onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalc
       };
       const response = await fetch(`${BASE_URL}/${api_version}/verticals`, requestOptions);
       const data = await response.json();
-      setVerticals(await data);
+      setVerticals(data);
     } catch (error) {
       console.error(error);
     }
   };
+
   useEffect(() => {
     fetchVerticals();
   }, []);
-  /* End: fetchVerticals */
+
+  const [verticals, setVerticals] = useState([]);
   const [selectedVerticalId, setSelectedVerticalId] = useState('');
+  const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10));
+  const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10));
+
   const handleVerticalSelect = (event) => {
     const verticalId = event.target.value;
     setSelectedVerticalId(verticalId);
     onVerticalSelect(verticalId);
   };
-  /* Begin: Style select */
-  /* Begin: selectedDateFrom */
-  const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10)); // Format YYYY-MM-DD
 
   const handleDateFromChange = (dateFrom) => {
     setSelectedDateFrom(dateFrom);
-    onDateFromSelect(dateFrom); // Appel de la fonction pour envoyer la dateFrom sélectionnée
+    onDateFromSelect(dateFrom);
   };
-  /* End: selectedDateFrom */
 
-  /* Begin: selectedDateTo */
-  const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10)); // Format YYYY-MM-DD
   const handleDateToChange = (dateTo) => {
     setSelectedDateTo(dateTo);
-    onDateToSelect(dateTo); // Appel de la fonction pour envoyer la dateFrom sélectionnée
+    onDateToSelect(dateTo);
   };
-  /* End: selectedDateTo */
+
+  const handleRecalculate = async () => {
+    try {
+      onVerticalSelect(selectedVerticalId);
+      onDateFromSelect(selectedDateFrom);
+      onDateToSelect(selectedDateTo);
+      if (onRecalculateClick) {
+        onRecalculateClick();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
   const MenuProps = {
@@ -75,34 +83,10 @@ function Component({onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalc
       },
     },
   };
-  /* End: Style select */
-   /* Begin: Fonction Recalculate */
-const handleRecalculate = async () => {
-  try {
-    // Appeler onVerticalSelect avec la valeur actuelle de selectedVerticalId
-    onVerticalSelect(selectedVerticalId);
-
-    // Passer la valeur actuelle de selectedDateFrom à onDateFromSelect
-    onDateFromSelect(selectedDateFrom);
-
-    // Passer la valeur actuelle de selectedDateTo à onDateToSelect
-    onDateToSelect(selectedDateTo);
-
-    // Vérifier si onRecalculateClick est défini avant de l'appeler
-    if (onRecalculateClick) {
-      // Appeler la fonction de rappel pour recalculer
-      onRecalculateClick();
-    } 
-  } catch (error){
-    console.error(error);
-  }
-};
-  /* End: Fonction Recalculate */
   return (
     <>
       <Grid container spacing={3}>
         <Grid item xs={3}>
-          {/* Begin:: select verticales */}
           <Typography variant="h6" sx={{ fontWeight: '400' }} mb={1}>
             Verticales
           </Typography>
@@ -117,21 +101,19 @@ const handleRecalculate = async () => {
               MenuProps={MenuProps}
               required
             >
-              {verticals.map((get_vertical, index) => (
-                <MenuItem key={index} value={get_vertical.vertical_id}>
-                  {get_vertical.vertical_code}
+              {verticals.map((vertical, index) => (
+                <MenuItem key={index} value={vertical.vertical_id}>
+                  {vertical.vertical_code}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          {/* End:: select verticales */}
         </Grid>
         <Grid item xs={3.6}>
-          {/* Begin:: Période */}
-          <Typography variant="h6" sx={{ fontWeight: '400' }} >
+          <Typography variant="h6" sx={{ fontWeight: '400' }}>
             Période
           </Typography>
-          <Grid container >
+          <Grid container>
             <Grid item xs={6}>
               <input
                 type="date"
@@ -149,7 +131,6 @@ const handleRecalculate = async () => {
               />
             </Grid>
           </Grid>
-          {/* End:: Période */}
         </Grid>
         <Grid item xs={4} display={'flex'} alignItems={'center'}>
           <Button variant="contained" onClick={handleRecalculate} sx={{ marginRight: '10px' }}>

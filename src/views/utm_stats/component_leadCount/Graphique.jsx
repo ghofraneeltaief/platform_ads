@@ -9,7 +9,7 @@ import './graphique.css';
 
 const chartSetting = {
   width: 500,
-  height: 300,
+  height: 330,
   sx: {
     [`.${axisClasses.left} .${axisClasses.label}`]: {
       transform: 'translate(-20px, 0)',
@@ -17,68 +17,98 @@ const chartSetting = {
   },
 };
 
-const dataset = [
-  { Collectés: 59, Livrés: 57, month: 'Jan' },
-  { Collectés: 50, Livrés: 52, month: 'Fev' },
-  { Collectés: 47, Livrés: 53, month: 'Mar' },
-  { Collectés: 54, Livrés: 56, month: 'Apr' },
-  { Collectés: 57, Livrés: 69, month: 'May' },
-  { Collectés: 60, Livrés: 63, month: 'June' },
-  { Collectés: 59, Livrés: 60, month: 'July' },
-  { Collectés: 65, Livrés: 60, month: 'Aug' },
-  { Collectés: 51, Livrés: 51, month: 'Sept' },
-  { Collectés: 60, Livrés: 65, month: 'Oct' },
-  { Collectés: 67, Livrés: 64, month: 'Nov' },
-  { Collectés: 61, Livrés: 70, month: 'Dec' },
-];
+async function fetchData(url, token) {
+  const formdata = new FormData();
+  formdata.append('Hipto-Authorization', token);
+  const requestOptions = {
+    method: 'POST',
+    body: formdata,
+  };
+  const response = await fetch(`${BASE_URL}/${api_version}${url}`, requestOptions);
+  const responseData = await response.json();
+  return Array.isArray(responseData) ? responseData : [responseData];
+}
 
-function Graphique({ selectedVerticalId, donnees }) {
+function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donnees }) {
   const [error, setError] = useState(null);
   const [LeadsCollectes, setLeadsCollectes] = useState([]);
   const [LeadsLivres, setLeadsLivres] = useState([]);
-
-  async function getToken() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      return token;
-    } else {
-      throw new Error('No token available');
-    }
-  }
-
-  const fetchData = async (url, setStateFunction) => {
-    if (selectedVerticalId) {
-      try {
-        const token = await getToken();
-        const responseObject = JSON.parse(token);
-        const accessToken = responseObject.access_token;
-        const formdata = new FormData();
-        formdata.append('Hipto-Authorization', accessToken);
-        const requestOptions = {
-          method: 'POST',
-          body: formdata,
-        };
-        const response = await fetch(`${BASE_URL}/${api_version}${url}`, requestOptions);
-        const responseData = await response.json();
-        const dataArray = Array.isArray(responseData) ? responseData : [responseData];
-        setStateFunction(dataArray);
-      } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          text: 'Erreur lors de la récupération des données ! ' + error.message,
-          width: '30%',
-          confirmButtonText: "Ok, j'ai compris!",
-          confirmButtonColor: '#0095E8',
-        });
-        setError('Erreur lors de la récupération des données.');
-      }
-    }
-  };
+  const [chartDataIncoming, setChartDataIncoming] = useState([]);
+  const [chartDataOutgoing, setChartDataOutgoing] = useState([]);
 
   useEffect(() => {
-    fetchData(`/leads/incoming/compareHourlyPerformance?vertical_id=${selectedVerticalId}`, setLeadsCollectes);
-    fetchData(`/leads/outgoing/compareHourlyPerformance?vertical_id=${selectedVerticalId}`, setLeadsLivres);
+    async function fetchDataForLeads(url, setStateFunction) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No token available');
+        }
+        const data = await fetchData(url, JSON.parse(token).access_token);
+        setStateFunction(data);
+      } catch (error) {
+        handleError(error);
+      }
+    }
+
+    if (selectedVerticalId) {
+      fetchDataForLeads(
+        `/leads/incoming/compareHourlyPerformance?vertical_id=${selectedVerticalId}`,
+        setLeadsCollectes,
+      );
+      fetchDataForLeads(
+        `/leads/outgoing/compareHourlyPerformance?vertical_id=${selectedVerticalId}`,
+        setLeadsLivres,
+      );
+    }
   }, [selectedVerticalId]);
+
+  useEffect(() => {
+    async function fetchDataForCharts(url, setStateFunction) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No token available');
+        }
+        const data = await fetchData(url, JSON.parse(token).access_token);
+        setStateFunction(data);
+      } catch (error) {
+        handleError(error);
+      }
+    }
+
+    if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
+      fetchDataForCharts(
+        `/leads/incoming/hours?from=${selectedDateFrom}&to=${selectedDateTo}&vertical_id=${selectedVerticalId}`,
+        setChartDataIncoming,
+      );
+      fetchDataForCharts(
+        `/leads/outgoing/hours?from=${selectedDateFrom}&to=${selectedDateTo}&vertical_id=${selectedVerticalId}`,
+        setChartDataOutgoing,
+      );
+    }
+  }, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
+
+  const handleError = (error) => {
+    Swal.fire({
+      icon: 'error',
+      text: 'Erreur lors de la récupération des données ! ' + error.message,
+      width: '30%',
+      confirmButtonText: "Ok, j'ai compris!",
+      confirmButtonColor: '#0095E8',
+    });
+    setError('Erreur lors de la récupération des données.');
+  };
+
+  const combinedChartData = chartDataIncoming.map((incomingItem) => {
+    const outgoingItem = chartDataOutgoing.find(
+      (outgoingItem) => outgoingItem.hour === incomingItem.hour,
+    );
+    return {
+      hour: incomingItem.hour,
+      incoming: incomingItem.count,
+      outgoing: outgoingItem ? outgoingItem.count : 0,
+    };
+  });
 
   return (
     <Box sx={{ width: 1 }}>
@@ -87,38 +117,56 @@ function Graphique({ selectedVerticalId, donnees }) {
           <DashboardCard title="Collecte/Livraison Jour courant">
             <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={7.4}>
               <Box gridColumn="span 8">
-                <BarChart
-                  dataset={dataset}
-                  xAxis={[{ scaleType: 'band', dataKey: 'month' }]}
-                  series={[
-                    { dataKey: 'Collectés', label: 'Collectés', color: '#59A7FE' },
-                    { dataKey: 'Livrés', label: 'Livrés', color: '#6BEAA6' },
-                  ]}
-                  {...chartSetting}
-                />
+                {combinedChartData.length > 0 && (
+                  <BarChart
+                    dataset={combinedChartData}
+                    xAxis={[{ scaleType: 'band', dataKey: 'hour' }]}
+                    series={[
+                      { dataKey: 'incoming', label: 'Collectés', color: '#6BEAA6' },
+                      { dataKey: 'outgoing', label: 'Livrés', color: '#59A7FE' },
+                    ]}
+                    {...chartSetting}
+                  />
+                )}
               </Box>
-              
-                <Box gridColumn="span 4" >
-                  <Box sx={{ paddingBottom: '10px' }}>
-                    <Typography variant="h6">LEADS COLLECTÉS</Typography>
-                  </Box>
-                  {donnees && donnees.map((row, index) => (
-                  <Typography key={index} variant="body1">{row.global}</Typography>
-                  ))}
-                  <Box sx={{ paddingBottom: '10px', paddingTop: '20px' }}>
-                    <Typography variant="h6">CPL</Typography>
-                  </Box>
-                  {donnees && donnees.map((row, index) => (
-                  <Typography key={index} variant="body1">{row.global_cpl}</Typography>
-                  ))}
-                  <Box sx={{ paddingBottom: '10px', paddingTop: '20px' }}>
-                    <Typography variant="h6">DÉPENSES</Typography>
-                  </Box>
-                  {donnees && donnees.map((row, index) => (
-                  <Typography key={index} variant="body1">{row.global_expenses}</Typography>
-                  ))}
+              <Box gridColumn="span 4">
+                <Box sx={{ paddingBottom: '10px' }}>
+                  <Typography variant="h6">LEADS COLLECTÉS</Typography>
                 </Box>
-              
+                {donnees && donnees.length > 0 ? (
+                  donnees.map((row, index) => (
+                    <Typography key={index} variant="body1">
+                      {row.global}
+                    </Typography>
+                  ))
+                ) : (
+                  <Typography variant="body1">0</Typography>
+                )}
+                <Box sx={{ paddingBottom: '10px', paddingTop: '20px' }}>
+                  <Typography variant="h6">CPL</Typography>
+                </Box>
+                {donnees && donnees.length > 0 ? (
+                  donnees.map((row, index) => (
+                    <Typography key={index} variant="body1">
+                      {row.global_cpl}
+                    </Typography>
+                  ))
+                ) : (
+                  <Typography variant="body1">0,00 €</Typography>
+                )}
+                <Box sx={{ paddingBottom: '10px', paddingTop: '20px' }}>
+                  <Typography variant="h6">DÉPENSES</Typography>
+                </Box>
+                {donnees && donnees.length > 0 ? (
+                  donnees.map((row, index) => (
+                    <Typography key={index} variant="body1">
+                      {row.global_expenses}
+                    </Typography>
+                  ))
+                ) : (
+                  <Typography variant="body1">0,00 €</Typography>
+                )}
+              </Box>
             </Box>
           </DashboardCard>
         </Box>
@@ -126,44 +174,42 @@ function Graphique({ selectedVerticalId, donnees }) {
         <Box gridColumn="span 4">
           <DashboardCard title="Leads J-1" backgroundColor={'#080655'} color={'white'}>
             <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={5}>
-              {LeadsCollectes.map((row, index) => (
-                <Box gridColumn="span 5" key={index}>
-                  <Typography className="circle1">{row.yesterday}</Typography>
-                  <Typography>{row.yesterday_perc}%</Typography>
-                  <Typography variant="h7">Leads Collectés</Typography>
-                </Box>
-              ))}
-              {LeadsLivres.map((row, index) => (
-                <Box gridColumn="span 6" key={index}>
-                  <Typography className="circle2">{row.yesterday}</Typography>
-                  <Typography>{row.yesterday_perc}%</Typography>
-                  <Typography variant="h7"> Leads Livrés</Typography>
-                </Box>
-              ))}
+              {renderLeads(LeadsCollectes, 'circle1')}
+              {renderLeads(LeadsLivres, 'circle2')}
             </Box>
           </DashboardCard>
           <Box sx={{ marginTop: '10px' }}>
             <DashboardCard title="Leads S-1" backgroundColor={'#0DBDE7'} color={'white'}>
               <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={5}>
-                {LeadsCollectes.map((row, index) => (
-                  <Box gridColumn="span 5" key={index}>
-                    <Typography className="circle1">{row.yesterweek}</Typography>
-                    <Typography>{row.yesterweek_perc}%</Typography>
-                    <Typography variant="h7">Leads Collectés</Typography>
-                  </Box>
-                ))}
-                {LeadsLivres.map((row, index) => (
-                  <Box gridColumn="span 6" key={index}>
-                    <Typography className="circle2">{row.yesterweek}</Typography>
-                    <Typography>{row.yesterweek_perc}%</Typography>
-                    <Typography variant="h7"> Leads Livrés</Typography>
-                  </Box>
-                ))}
+                {renderLeads(LeadsCollectes, 'circle1')}
+                {renderLeads(LeadsLivres, 'circle2')}
               </Box>
             </DashboardCard>
           </Box>
         </Box>
       </Box>
+    </Box>
+  );
+}
+
+function renderLeads(Leads, circleClass) {
+  return Leads && Leads.length > 0 ? (
+    Leads.map((row, index) => (
+      <Box gridColumn="span 5" key={index}>
+        <Typography className={circleClass}>{row.yesterday}</Typography>
+        <Typography sx={{ paddingTop: '10px' }}>{row.yesterday_perc}%</Typography>
+        <Typography variant="h7">
+          {circleClass === 'circle1' ? 'Leads Collectés' : 'Leads Livrés'}
+        </Typography>
+      </Box>
+    ))
+  ) : (
+    <Box gridColumn="span 5">
+      <Typography className={circleClass}>0</Typography>
+      <Typography sx={{ paddingTop: '10px' }}>0 %</Typography>
+      <Typography variant="h7">
+        {circleClass === 'circle1' ? 'Leads Collectés' : 'Leads Livrés'}
+      </Typography>
     </Box>
   );
 }
