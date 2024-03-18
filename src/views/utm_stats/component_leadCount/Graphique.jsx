@@ -91,7 +91,7 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
   const handleError = (error) => {
     Swal.fire({
       icon: 'error',
-      text: 'Erreur lors de la récupération des données ! ' + error.message,
+      text: 'Erreur lors de la récupération des données ! ',
       width: '30%',
       confirmButtonText: "Ok, j'ai compris!",
       confirmButtonColor: '#0095E8',

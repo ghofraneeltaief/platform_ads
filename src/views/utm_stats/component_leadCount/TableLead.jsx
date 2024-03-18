@@ -71,14 +71,7 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
       onDataUpdate(dataArray);
       setTableData(dataArray);
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        text: 'Erreur lors de la récupération des données ! ' + error.message,
-        width: '30%',
-        confirmButtonText: "Ok, j'ai compris!",
-        confirmButtonColor: '#0095E8',
-      });
-      setError('Erreur lors de la récupération des données.');
+      handleError(error);
     }
   }
   async function fetchTableDataCanal() {
@@ -107,14 +100,7 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
 
       setTableDataCanal(dataArray);
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        text: 'Erreur lors de la récupération des données ! ' + error.message,
-        width: '30%',
-        confirmButtonText: "Ok, j'ai compris!",
-        confirmButtonColor: '#0095E8',
-      });
-      setError('Erreur lors de la récupération des données.');
+      handleError(error);
     }
   }
   useEffect(() => {
@@ -123,7 +109,16 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
       fetchTableDataCanal();
     }
   }, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
-
+  const handleError = (error) => {
+    Swal.fire({
+      icon: 'error',
+      text: 'Erreur lors de la récupération des données ! ',
+      width: '30%',
+      confirmButtonText: "Ok, j'ai compris!",
+      confirmButtonColor: '#0095E8',
+    });
+    setError('Erreur lors de la récupération des données.');
+  };
   const platforms = [
     { name: 'Facebook', logo: facebook },
     { name: 'Google', logo: google },
@@ -149,7 +144,6 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <img
               src={platform.logo}
-              className="me-3"
               style={{ width: '35px', marginRight: '10px', ...(platform.style || {}) }}
               alt={`${platform.name} Logo`}
             />
