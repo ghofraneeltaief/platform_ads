@@ -119,7 +119,7 @@ function Leads({
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-  
+
   const renderTableHeaders = () => {
     return tableHeaders.map((header) => (
       <TableCell key={header} sx={{ backgroundColor: '#A367DC', color: 'white' }}>
@@ -128,6 +128,81 @@ function Leads({
         </Typography>
       </TableCell>
     ));
+  };
+  const renderTableBody = () => {
+    if (tableData.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={tableHeaders.length + 7}>
+            <Typography variant="subtitle2">No data available in table</Typography>
+          </TableCell>
+        </TableRow>
+      );
+    } else {
+      return tableData
+        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+        .map((row, index) => (
+          <TableRow key={index}>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.nom}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.data_created_date}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.id}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.nom}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.prenom}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.email}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.telephone}</Typography>
+                  </TableCell>
+                  {tableHeaders.map((header) => (
+                    <TableCell key={header}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Box>
+                          <Typography variant="subtitle2"></Typography>
+                          <Typography
+                            color="textSecondary"
+                            sx={{ fontSize: '13px' }}
+                          >
+                            {row[header]}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.canal}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.utm_source}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.utm_medium}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.utm_campaign}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.utm_term}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.utm_content}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="subtitle2">{row.utm_angle}</Typography>
+                  </TableCell>
+                </TableRow>
+        ));
+    }
   };
   return (
     <DashboardCard>
@@ -243,69 +318,7 @@ function Leads({
             </TableRow>
           </TableHead>
           <TableBody>
-            {tableData
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.nom}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.data_created_date}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.id}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.nom}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.prenom}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.email}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.telephone}</Typography>
-                  </TableCell>
-                  {tableHeaders.map((header) => (
-                    <TableCell key={header}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Box>
-                          <Typography variant="subtitle2"></Typography>
-                          <Typography
-                            color="textSecondary"
-                            sx={{ fontSize: '13px' }}
-                          >
-                            {row[header]}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </TableCell>
-                  ))}
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.canal}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_source}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_medium}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_campaign}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_term}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_content}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_angle}</Typography>
-                  </TableCell>
-                </TableRow>
-              ))}
+          {renderTableBody()}
           </TableBody>
         </Table>
       </Box>

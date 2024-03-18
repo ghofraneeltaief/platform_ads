@@ -16,9 +16,10 @@ function Statistiques({ CanalCount, SourceCount }) {
   }
 
   const [LogoSocialNetworks, setLogoSocialNetworks] = useState({});
+  const [LogoChannels, setLogoChannels] = useState({});
 
   useEffect(() => {
-    const fetchSocialNetworks = async () => {
+    const fetchLogos = async () => {
       try {
         const token = await getToken();
         const responseObject = JSON.parse(token);
@@ -29,22 +30,31 @@ function Statistiques({ CanalCount, SourceCount }) {
           method: 'POST',
           body: formdata,
         };
-        const response = await fetch(`${BASE_URL}/${api_version}/social_networks`, requestOptions);
-        const data = await response.json();
-
-        const logos = {};
-        data.forEach(item => {
+        // Fetching social networks logos
+        const socialNetworksResponse = await fetch(`${BASE_URL}/${api_version}/social_networks`, requestOptions);
+        const socialNetworksData = await socialNetworksResponse.json();
+        const socialNetworksLogos = {};
+        socialNetworksData.forEach(item => {
           const sourceName = item.sn_name.toLowerCase();
-          logos[sourceName] = item.sn_logo;
+          socialNetworksLogos[sourceName] = item.sn_logo;
         });
-        
-        setLogoSocialNetworks(logos);
+        setLogoSocialNetworks(socialNetworksLogos);
+
+        // Fetching channels logos
+        const channelsResponse = await fetch(`${BASE_URL}/${api_version}/channels`, requestOptions);
+        const channelsData = await channelsResponse.json();
+        const channelsLogos = {};
+        channelsData.forEach(item => {
+          const channelName = item.channel_name.toLowerCase();
+          channelsLogos[channelName] = item.channel_logo;
+        });
+        setLogoChannels(channelsLogos);
       } catch (error) {
         console.error(error);
       }
     };
 
-    fetchSocialNetworks();
+    fetchLogos();
   }, []);
 
   return (
@@ -59,13 +69,12 @@ function Statistiques({ CanalCount, SourceCount }) {
               <Grid container>
                 {Object.keys(CanalCount).map((canal, index) => (
                   <React.Fragment key={index}>
-                    <Grid item xs={12} lg={6}>
-                      <Typography variant="h9">{canal}</Typography>
-                      <hr />
+                    <Grid item xs={12} lg={6} pb={2} sx={{ display: 'flex', alignItems: 'center' }}>
+                      <img src={LogoChannels[canal.toLowerCase()]} alt='' width={25} />
+                      <Typography pl={1} variant="h9">{canal}</Typography>
                     </Grid>
                     <Grid item xs={12} lg={6} sx={{ textAlign: 'end' }}>
                       <Typography variant="h9">{CanalCount[canal]}</Typography>
-                      <hr />
                     </Grid>
                   </React.Fragment>
                 ))}
@@ -79,7 +88,7 @@ function Statistiques({ CanalCount, SourceCount }) {
               <Grid container>
                 {Object.keys(SourceCount).map((source, index) => (
                   <React.Fragment key={index}>
-                    <Grid item xs={12} lg={6} pb={2}>
+                    <Grid item xs={12} lg={6} pb={2} sx={{ display: 'flex', alignItems: 'center' }}>
                       <img src={LogoSocialNetworks[source.toLowerCase()]} alt='' width={25} />
                       <Typography pl={1} variant="h9">{source}</Typography>
                     </Grid>
