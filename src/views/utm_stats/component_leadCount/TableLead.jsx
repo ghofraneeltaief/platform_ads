@@ -14,6 +14,14 @@ import './tablelead.css';
 import DashboardCard from 'src/components/shared/DashboardCard';
 import { BASE_URL, api_version } from '../../authentication/config';
 import Swal from 'sweetalert2';
+import tiktok from '../../../assets/images/logos/tiktok.jpg';
+import snapchat from '../../../assets/images/logos/snapchat.png';
+import bing from '../../../assets/images/logos/bing.png';
+import taboola from '../../../assets/images/logos/taboola.png';
+import outbrain from '../../../assets/images/logos/outbrain.png';
+import autre from '../../../assets/images/logos/autre.jpg';
+import facebook from '../../../assets/images/logos/facebook.png';
+import google from '../../../assets/images/logos/google.png';
 
 function a11yProps(index) {
   return {
@@ -30,6 +38,7 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
   const [error, setError] = useState(null);
   const [tabValue, setTabValue] = useState(0);
   const [tableData, setTableData] = useState([]);
+  const [TableDataCanal, setTableDataCanal] = useState([]);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -72,22 +81,58 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
       setError('Erreur lors de la récupération des données.');
     }
   }
+  async function fetchTableDataCanal() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token available');
+      }
 
+      const accessToken = JSON.parse(token).access_token;
+      const formdata = new FormData();
+      formdata.append('Hipto-Authorization', accessToken);
+
+      const requestOptions = {
+        method: 'POST',
+        body: formdata,
+      };
+
+      const response = await fetch(
+        `${BASE_URL}/${api_version}/report/channels?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}`,
+        requestOptions,
+      );
+
+      const responseData = await response.json();
+      const dataArray = Array.isArray(responseData) ? responseData : [responseData];
+
+      setTableDataCanal(dataArray);
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        text: 'Erreur lors de la récupération des données ! ' + error.message,
+        width: '30%',
+        confirmButtonText: "Ok, j'ai compris!",
+        confirmButtonColor: '#0095E8',
+      });
+      setError('Erreur lors de la récupération des données.');
+    }
+  }
   useEffect(() => {
     if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
       fetchTableData();
+      fetchTableDataCanal();
     }
   }, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
 
   const platforms = [
-    { name: 'Facebook', logo: 'https://ads.hipto.com/template/assets/media/svg/brand-logos/facebook-4.svg' },
-    { name: 'Google', logo: 'https://ads.hipto.com/template/assets/media/svg/brand-logos/google-icon.svg' },
-    { name: 'Snapchat', logo: 'https://ads.hipto.com/template/assets/media/svg/brand-logos/20190808214526!Logo-Snapchat.png' },
-    { name: 'TikTok', logo: 'https://ads.hipto.com/template/assets/media/svg/brand-logos/6057996-logo-tiktok-sur-fond-transparent-gratuit-vectoriel.jpg' },
-    { name: 'Bing', logo: 'https://ads.hipto.com/template/assets/media/svg/brand-logos/microsoft-5.svg' },
-    { name: 'Taboola', logo: 'https://ads.hipto.com/template/assets/media/svg/brand-logos/taboola-brands.png', style: { backgroundColor: '#000000' } },
-    { name: 'Outbrain', logo: 'https://ads.hipto.com/template/assets/media/svg/brand-logos/outbrain-brands.png', style: { backgroundColor: '#000000' } },
-    { name: 'Autre', logo: 'https://manager.hipto.com/grow/medias/images/no_image.jpg' },
+    { name: 'Facebook', logo: facebook },
+    { name: 'Google', logo: google },
+    { name: 'Snapchat', logo: snapchat },
+    { name: 'TikTok', logo: tiktok },
+    { name: 'Bing', logo: bing },
+    { name: 'Taboola', logo: taboola, style: { backgroundColor: '#000000' } },
+    { name: 'Outbrain', logo: outbrain, style: { backgroundColor: '#000000' } },
+    { name: 'Autre', logo: autre },
   ];
 
   const renderPlatformRow = (platform) => {
@@ -100,12 +145,20 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
     return (
       <TableRow key={platform.name}>
         <TableCell component="th" scope="row">
-          <Typography>
-            <img src={platform.logo} className="me-3" style={{ width: '35px', marginRight: '10px', ...(platform.style || {}) }} alt={`${platform.name} Logo`} />
-            {platform.name}
-          </Typography>
+          {' '}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <img
+              src={platform.logo}
+              className="me-3"
+              style={{ width: '35px', marginRight: '10px', ...(platform.style || {}) }}
+              alt={`${platform.name} Logo`}
+            />
+            <Typography>{platform.name}</Typography>
+          </div>
         </TableCell>
-        <TableCell align="center">{leadCount} ({testCount})</TableCell>
+        <TableCell align="center">
+          {leadCount} ({testCount})
+        </TableCell>
         <TableCell align="center">{expenses}</TableCell>
         <TableCell align="center">{cpl}</TableCell>
         <TableCell align="center">-</TableCell>
@@ -123,7 +176,7 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
           </Tabs>
         </Box>
         <TabPanel value={tabValue} index={0}>
-          <Table sx={{ minWidth: 650, padding: "0px" }} aria-label="simple table">
+          <Table sx={{ minWidth: 650, padding: '0px' }} aria-label="simple table">
             <TableHead>
               <TableRow>
                 <TableCell>ITEM</TableCell>
@@ -134,12 +187,31 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* Table rows for Par Canal */}
+              {TableDataCanal.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <img src={row.channel_logo} style={{ width: '35px', marginRight: '10px' }} />
+                      {row.channel_name}
+                    </div>
+                  </TableCell>
+
+                  <TableCell align="center">
+                    {row.count} ({row.leads_test})
+                  </TableCell>
+                  <TableCell align="center">{row.cpl}</TableCell>
+                  <TableCell align="center">{row.expenses}</TableCell>
+                  <TableCell align="center">-</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TabPanel>
         <TabPanel value={tabValue} index={1}>
-          <Table sx={{ minWidth: 650, padding: "0px", textAlign: 'center' }} aria-label="simple table">
+          <Table
+            sx={{ minWidth: 650, padding: '0px', textAlign: 'center' }}
+            aria-label="simple table"
+          >
             <TableHead>
               <TableRow>
                 <TableCell>ITEM</TableCell>
@@ -149,9 +221,7 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
                 <TableCell align="center">TX MARGE</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {platforms.map(renderPlatformRow)}
-            </TableBody>
+            <TableBody>{platforms.map(renderPlatformRow)}</TableBody>
           </Table>
         </TabPanel>
       </Box>
