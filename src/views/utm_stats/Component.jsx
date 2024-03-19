@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Typography, Button } from '@mui/material';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+import { Grid, Typography, Button, TextField  } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import '../pioche/components/selection.css';
 import { BASE_URL, api_version } from '../authentication/config';
 
-function Component({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalculateClick }) {
+function Component({ onVerticalSelect, onVerticalSelectName, onDateFromSelect, onDateToSelect, onRecalculateClick }) {
   async function getToken() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -41,14 +38,16 @@ function Component({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
   }, []);
 
   const [verticals, setVerticals] = useState([]);
-  const [selectedVerticalId, setSelectedVerticalId] = useState('');
+  const [selectedVerticals, setSelectedVerticals] = useState([]);
   const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10));
   const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10));
 
-  const handleVerticalSelect = (event) => {
-    const verticalId = event.target.value;
-    setSelectedVerticalId(verticalId);
-    onVerticalSelect(verticalId);
+  const handleVerticalSelect = (event, values) => {
+    const verticalIds = values.map((value) => value.vertical_id);
+    const verticalNames = values.map((value) => value.vertical_code);
+    setSelectedVerticals(values);
+    onVerticalSelect(verticalIds);
+    onVerticalSelectName(verticalNames);
   };
 
   const handleDateFromChange = (dateFrom) => {
@@ -63,7 +62,10 @@ function Component({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
 
   const handleRecalculate = async () => {
     try {
-      onVerticalSelect(selectedVerticalId);
+      const verticalIds = selectedVerticals.map((vertical) => vertical.vertical_id);
+      const verticalNames = selectedVerticals.map((value) => value.vertical_code);
+      onVerticalSelectName(verticalNames);
+      onVerticalSelect(verticalIds);
       onDateFromSelect(selectedDateFrom);
       onDateToSelect(selectedDateTo);
       if (onRecalculateClick) {
@@ -73,41 +75,25 @@ function Component({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
       console.error(error);
     }
   };
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
-    },
-  };
+
   return (
     <>
       <Grid container spacing={3}>
-        <Grid item xs={3}>
-          <Typography variant="h6" sx={{ fontWeight: '400' }} mb={1}>
+        <Grid item xs={4}>
+          <Typography variant="h6" mb={1}>
             Verticales
           </Typography>
-          <FormControl fullWidth>
-            <InputLabel id="verticales-label">Verticales</InputLabel>
-            <Select
-              labelId="verticales-label"
-              id="verticales-select"
-              label="Verticale"
-              value={selectedVerticalId}
-              onChange={handleVerticalSelect}
-              MenuProps={MenuProps}
-              required
-            >
-              {verticals.map((vertical, index) => (
-                <MenuItem key={index} value={vertical.vertical_id}>
-                  {vertical.vertical_code}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Autocomplete
+            multiple
+            id="verticals-select"
+            options={verticals}
+            getOptionLabel={(option) => option.vertical_code}
+            value={selectedVerticals}
+            onChange={handleVerticalSelect}
+            renderInput={(params) => (
+              <TextField {...params} label="Choisir" />
+            )}
+          />
         </Grid>
         <Grid item xs={3.6}>
           <Typography variant="h6" sx={{ fontWeight: '400' }}>

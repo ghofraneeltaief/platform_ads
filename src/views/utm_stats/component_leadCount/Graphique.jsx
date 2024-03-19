@@ -36,7 +36,7 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
   const [chartDataIncoming, setChartDataIncoming] = useState([]);
   const [chartDataOutgoing, setChartDataOutgoing] = useState([]);
 
-  useEffect(() => {
+  
     async function fetchDataForLeads(url, setStateFunction) {
       try {
         const token = localStorage.getItem('token');
@@ -49,8 +49,8 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
         handleError(error);
       }
     }
-
-    if (selectedVerticalId) {
+useEffect(() => {
+    if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
       fetchDataForLeads(
         `/leads/incoming/compareHourlyPerformance?vertical_id=${selectedVerticalId}`,
         setLeadsCollectes,
@@ -60,7 +60,7 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
         setLeadsLivres,
       );
     }
-  }, [selectedVerticalId]);
+  }, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
 
   useEffect(() => {
     async function fetchDataForCharts(url, setStateFunction) {

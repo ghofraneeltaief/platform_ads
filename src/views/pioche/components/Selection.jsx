@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import DashboardCard from '../../../components/shared/DashboardCard';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import { Grid } from '@mui/material';
-import { Typography, Button } from '@mui/material';
+import { Grid, Typography, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import './selection.css';
 import { BASE_URL, api_version } from '../../authentication/config';
 
 function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalculateClick }) {
-  /* Begin: getToken */
   async function getToken() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -21,15 +17,19 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
       throw new Error('No token available');
     }
   }
-  /* End: getToken */
-  /* Begin: fetchVerticals */
+
   const [verticals, setVerticals] = useState([]);
-  const formdata = new FormData();
+  const [selectedVertical, setSelectedVertical] = useState(null);
+  const [sources, setSources] = useState([]);
+  const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10));
+  const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10));
+
   const fetchVerticals = async () => {
     try {
       const token = await getToken();
       const responseObject = JSON.parse(token);
       const accessToken = responseObject.access_token;
+      const formdata = new FormData();
       formdata.append('Hipto-Authorization', accessToken);
       const requestOptions = {
         method: 'POST',
@@ -37,113 +37,68 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
       };
       const response = await fetch(`${BASE_URL}/${api_version}/verticals`, requestOptions);
       const data = await response.json();
-      setVerticals(await data);
+      setVerticals(data);
     } catch (error) {
       console.error(error);
     }
   };
+
   useEffect(() => {
     fetchVerticals();
   }, []);
-  /* End: fetchVerticals */
 
-  const [selectedVerticalId, setSelectedVerticalId] = useState('');
-  const [sources, setSources] = useState([]);
-  const handleVerticalSelect = (event) => {
-    const verticalId = event.target.value;
-    setSelectedVerticalId(verticalId);
-    onVerticalSelect(verticalId);
+  const handleVerticalSelect = (event, value) => {
+    setSelectedVertical(value);
+    onVerticalSelect(value?.vertical_id || '');
+    fetchSources(value?.vertical_id);
   };
-  /* Begin: fetchSources */
-  const fetchSources = async () => {
-    if (selectedVerticalId) {
-      try {
-        const token = await getToken();
-        const responseObject = JSON.parse(token);
-        const accessToken = responseObject.access_token;
-        formdata.append('Hipto-Authorization', accessToken);
-        const requestOptions = {
-          method: 'POST',
-          body: formdata,
-        };
-        const response = await fetch(
-          `${BASE_URL}/${api_version}/sources/?vertical_id=${selectedVerticalId}`,
-          requestOptions,
-        );
-        const data = await response.json();
-        setSources(data);
-      } catch (error) {
-        console.error(error);
-      }
+
+  const fetchSources = async (verticalId) => {
+    try {
+      const token = await getToken();
+      const responseObject = JSON.parse(token);
+      const accessToken = responseObject.access_token;
+      const formdata = new FormData();
+      formdata.append('Hipto-Authorization', accessToken);
+      const requestOptions = {
+        method: 'POST',
+        body: formdata,
+      };
+      const response = await fetch(`${BASE_URL}/${api_version}/sources/?vertical_id=${verticalId}`, requestOptions);
+      const data = await response.json();
+      setSources(data);
+    } catch (error) {
+      console.error(error);
     }
   };
-  useEffect(() => {
-    fetchSources();
-  }, [selectedVerticalId]);
-  /* End: fetchSources */
-
-  /* Begin: selectedDateFrom */
-  const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10)); // Format YYYY-MM-DD
 
   const handleDateFromChange = (dateFrom) => {
     setSelectedDateFrom(dateFrom);
-    onDateFromSelect(dateFrom); // Appel de la fonction pour envoyer la dateFrom sélectionnée
+    onDateFromSelect(dateFrom);
   };
-  /* End: selectedDateFrom */
 
-  /* Begin: selectedDateTo */
-  const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10)); // Format YYYY-MM-DD
   const handleDateToChange = (dateTo) => {
     setSelectedDateTo(dateTo);
-    onDateToSelect(dateTo); // Appel de la fonction pour envoyer la dateFrom sélectionnée
+    onDateToSelect(dateTo);
   };
-  /* End: selectedDateTo */
 
-  /* Begin: Style select */
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 270,
-      },
-    },
+  const handleRecalculate = async () => {
+    try {
+      onDateFromSelect(selectedDateFrom);
+      onDateToSelect(selectedDateTo);
+      if (onRecalculateClick) {
+        onRecalculateClick();
+      }
+    } catch (error){
+      console.error(error);
+    }
   };
-  /* End: Style select */
-  
-  /* Begin: Fonction Recalculate */
-  /* Begin: Fonction Recalculate */
-const handleRecalculate = async () => {
-  try {
-    // Appeler onVerticalSelect avec la valeur actuelle de selectedVerticalId
-    onVerticalSelect(selectedVerticalId);
-
-    // Passer la valeur actuelle de selectedDateFrom à onDateFromSelect
-    onDateFromSelect(selectedDateFrom);
-
-    // Passer la valeur actuelle de selectedDateTo à onDateToSelect
-    onDateToSelect(selectedDateTo);
-
-    // Vérifier si onRecalculateClick est défini avant de l'appeler
-    if (onRecalculateClick) {
-      // Appeler la fonction de rappel pour recalculer
-      onRecalculateClick();
-    } 
-  } catch (error){
-    console.error(error);
-  }
-};
-  /* End: Fonction Recalculate */
 
   return (
     <DashboardCard sx={{ padding: '0px' }} title="Sélection">
-      {/* Begin:: separator */}
       <Box pb={4}>
         <Divider sx={{ width: '100%' }} />
       </Box>
-      {/* End:: separator */}
-      {/* Begin:: Période */}
       <Typography variant="h6" sx={{ fontWeight: '400' }} mb={1}>
         Période
       </Typography>
@@ -171,31 +126,17 @@ const handleRecalculate = async () => {
           />
         </Grid>
       </Grid>
-      {/* End:: Période */}
-      {/* Begin:: select verticales */}
-      <FormControl fullWidth>
-        <InputLabel id="verticales-label">Verticales</InputLabel>
-        <Select
-          labelId="verticales-label"
-          id="verticales-select"
-          label="Verticale"
-          value={selectedVerticalId}
-          onChange={handleVerticalSelect}
-          MenuProps={MenuProps}
-        >
-          {verticals.map((get_vertical, index) => (
-            <MenuItem key={index} value={get_vertical.vertical_id}>
-              {get_vertical.vertical_code}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      {/* End:: select verticales */}
-      {/* Begin:: select Sources */}
+      <Autocomplete
+        options={verticals}
+        getOptionLabel={(option) => option.vertical_code}
+        value={selectedVertical}
+        onChange={handleVerticalSelect}
+        renderInput={(params) => <TextField {...params} label="Verticales" />}
+      />
       <Box my={2}>
         <FormControl fullWidth>
           <InputLabel id="sources-label">Sources</InputLabel>
-          <Select labelId="sources-label" id="sources-select" label="Source" MenuProps={MenuProps}>
+          <Select labelId="sources-label" id="sources-select" label="Source">
             {sources.map((source, index) => (
               <MenuItem key={index} value={source.source_id}>
                 {source.source_name}
@@ -204,12 +145,9 @@ const handleRecalculate = async () => {
           </Select>
         </FormControl>
       </Box>
-      {/* End:: select Sources */}
-      {/* Begin:: Button */}
       <Box my={2}>
         <Button variant="contained" onClick={handleRecalculate}>Recalculer</Button>
       </Box>
-      {/* End:: Button */}
     </DashboardCard>
   );
 }
