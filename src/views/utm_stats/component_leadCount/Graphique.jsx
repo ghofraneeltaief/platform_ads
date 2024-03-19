@@ -36,7 +36,7 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
   const [chartDataIncoming, setChartDataIncoming] = useState([]);
   const [chartDataOutgoing, setChartDataOutgoing] = useState([]);
 
-  
+  useEffect(() => {
     async function fetchDataForLeads(url, setStateFunction) {
       try {
         const token = localStorage.getItem('token');
@@ -49,7 +49,7 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
         handleError(error);
       }
     }
-useEffect(() => {
+
     if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
       fetchDataForLeads(
         `/leads/incoming/compareHourlyPerformance?vertical_id=${selectedVerticalId}`,
@@ -91,12 +91,12 @@ useEffect(() => {
   const handleError = (error) => {
     Swal.fire({
       icon: 'error',
-      text: 'Erreur lors de la récupération des données ! ',
+      text: 'Erreur lors de la récupération des données fhfjtj ! ',
       width: '30%',
       confirmButtonText: "Ok, j'ai compris!",
       confirmButtonColor: '#0095E8',
     });
-    setError('Erreur lors de la récupération des données.');
+    setError('Erreur lors de la récupération des données sdghrhd.');
   };
 
   const combinedChartData = chartDataIncoming.map((incomingItem) => {
