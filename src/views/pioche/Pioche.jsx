@@ -38,8 +38,6 @@ function Pioche() {
         const TimeExp = debugToken.data.EXPIRE_TIME;
         // Vérifier si le token est expiré
         const currentTime = Math.floor(Date.now() / 1000);
-        console.log(currentTime);
-        console.log(TimeExp);
         if (TimeExp < currentTime) {
           // Si le token est expiré, rediriger vers la page de connexion
           navigate('/login');

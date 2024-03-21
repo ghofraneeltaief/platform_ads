@@ -79,7 +79,7 @@ function Component({ onVerticalSelect, onVerticalSelectName, onDateFromSelect, o
   return (
     <>
       <Grid container spacing={3}>
-        <Grid item xs={4}>
+        <Grid item xs={4.4}>
           <Typography variant="h6" mb={1}>
             Verticales
           </Typography>
