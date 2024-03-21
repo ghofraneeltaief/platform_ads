@@ -14,7 +14,15 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { BASE_URL, api_version } from '../authentication/config';
 
-const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
+// Fonction utilitaire pour les props d'accessibilité des onglets
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
+// Tableau des libellés et couleurs des onglets
 const tabLabels = [
   { label: 'Facebook', backgroundColor: '#4269F4' },
   { label: 'Google', backgroundColor: '#0F9D58' },
@@ -32,16 +40,28 @@ const tabLabels = [
   { label: 'Outbrain', backgroundColor: '#f3a21d8a' },
 ];
 
+// Composant pour chaque panneau d'onglet
 function TabPanel({ children, value, index }) {
   return <div hidden={value !== index}>{value === index && <div>{children}</div>}</div>;
 }
-
+// Composant pour chaque panneau d'onglet
+function TabPanel_plateform({ children, value, index }) {
+  return <div hidden={value !== index}>{value === index && <div>{children}</div>}</div>;
+}
+// Composant principal de la plateforme publicitaire
 function AdPlatform() {
+  // États
   const [tabValue, setTabValue] = useState(0);
+  const [tabValue_Plateform, setTabValue_Plateform] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [socialNetworks, setSocialNetworks] = useState([]);
-  /* Begin: getToken */
+  const [selectedVerticalId, setSelectedVerticalId] = useState('');
+  const [selectedVerticals, setSelectedVerticals] = useState([]);
+  const [selectedDateFrom, setSelectedDateFrom] = useState(null);
+  const [selectedDateTo, setSelectedDateTo] = useState(null);
+
+  // Fonction pour obtenir le token
   async function getToken() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -50,14 +70,15 @@ function AdPlatform() {
       throw new Error('No token available');
     }
   }
-  /* End: getToken */
-  const formdata = new FormData();
+
+  // Effet pour récupérer les données initiales
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = await getToken();
         const responseObject = JSON.parse(token);
         const accessToken = responseObject.access_token;
+        const formdata = new FormData();
         formdata.append('Hipto-Authorization', accessToken);
         const requestOptions = {
           method: 'POST',
@@ -66,109 +87,148 @@ function AdPlatform() {
         const response = await fetch(`${BASE_URL}/${api_version}/social_networks`, requestOptions);
         const data = await response.json();
         console.log(data);
-        LabelCheckbox.forEach((label) => {
-         if (label == null) {
-         }
-        })
-        setSocialNetworks(data); // Assuming data is an array of social networks
+        setSocialNetworks(data);
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchData();
-  }, []); // Empty dependency array to execute only once after initial render
+  }, []);
 
+  // Gestionnaire de changement d'onglet
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
+  const handleTabChange_Plateform = (event, newValue) => {
+    setTabValue_Plateform(newValue);
+  };
 
+  // Gestionnaire de basculement de l'expansion
   const handleExpandToggle = () => {
     setExpanded(!expanded);
   };
 
+  // Gestionnaire de changement de case à cocher
   const handleChange = () => {
     setIsChecked(!isChecked);
   };
+
+  // Tableau des libellés de case à cocher
   const LabelCheckbox = ['Facebook', 'Google', 'Snapchat', 'TikTok', 'Bing', 'Taboola', 'Outbrain'];
 
-  const handleRecalculateClick = () => {
+  // Gestionnaire de sélection de vertical
+  const handleVerticalSelect = (verticalId) => {
+    setSelectedVerticalId(verticalId);
+  };
+
+  // Gestionnaire de sélection de nom vertical
+  const handleVerticalSelectName = (verticalNames) => {
+    setSelectedVerticals(verticalNames);
+  };
+
+  // Gestionnaire de sélection de date de début
+  const handleDateFromSelect = (dateFrom) => {
+    setSelectedDateFrom(dateFrom);
+  };
+
+  // Gestionnaire de sélection de date de fin
+  const handleDateToSelect = (dateTo) => {
+    setSelectedDateTo(dateTo);
   };
 
   return (
     <Box sx={{ width: 1 }}>
       <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
         <Box gridColumn="span 12">
-          <Component onRecalculateClick={handleRecalculateClick} />
+          <Component
+            onVerticalSelect={handleVerticalSelect}
+            onDateFromSelect={handleDateFromSelect}
+            onDateToSelect={handleDateToSelect}
+            onVerticalSelectName={handleVerticalSelectName}
+          />
         </Box>
         <Box gridColumn="span 12">
-          <DashboardCard sx={{ padding: '0px' }}>
-            <Box sx={{ marginBottom: '30px', display: 'flex', alignItems: 'center' }}>
-              <Typography variant="subtitle1" sx={{ marginRight: '10px' }}>
-                Ad platform :
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                {LabelCheckbox.map((label, index) => (
-                  <FormControlLabel
-                    key={index}
-                    control={<Checkbox />}
-                    label={label}
-                    sx={{ marginRight: '10px' }}
-                  />
-                ))}
-              </Box>
-            </Box>
-            <Box sx={{ display: 'flex' }}>
-              <Tabs
-                orientation="vertical"
-                variant="scrollable"
-                value={tabValue}
-                onChange={handleTabChange}
-              >
-                {tabLabels.map((tab, index) => (
-                  <Tab
-                    key={index}
-                    label={tab.label}
-                    sx={{
-                      backgroundColor:
-                        tabValue === index
-                          ? tab.sx
-                            ? tab.sx.background
-                            : tab.backgroundColor
-                          : '#DCDCDC',
-                      color: tabValue === index ? (tab.sx ? tab.sx.color : 'white') : 'black',
-                      padding: '19.2px',
-                      ...(tabValue === index && tab.sx ? tab.sx : {}),
-                    }}
-                  />
-                ))}
-              </Tabs>
-              <Box sx={{ flexGrow: 1 }}>
-                <TabPanel value={tabValue} index={0}>
-                  <PlateformFB />
-                </TabPanel>
+          <Tabs value={tabValue} onChange={handleTabChange} aria-label="vertical tabs example">
+            {selectedVerticals.map((verticalNames, index) => (
+              <Tab key={index} label={`${verticalNames}`} {...a11yProps(index)} />
+            ))}
+          </Tabs>
+          {selectedVerticalId && selectedVerticalId.length > 0 ? (
+            selectedVerticalId.map((verticalId, index) => (
+              <TabPanel key={index} value={tabValue} index={index}>
+                <DashboardCard sx={{ padding: '0px' }}>
+                  <Box sx={{ marginBottom: '30px', display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="subtitle1" sx={{ marginRight: '10px' }}>
+                      Ad platform :
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                      {LabelCheckbox.map((label, index) => (
+                        <FormControlLabel
+                          key={index}
+                          control={<Checkbox />}
+                          label={label}
+                          sx={{ marginRight: '10px' }}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex' }}>
+                    <Tabs
+                      orientation="vertical"
+                      variant="scrollable"
+                      value={tabValue_Plateform}
+                      onChange={handleTabChange_Plateform}
+                    >
+                      {tabLabels.map((tab, index) => (
+                        <Tab
+                          key={index}
+                          label={tab.label}
+                          sx={{
+                            backgroundColor:
+                              tabValue_Plateform === index
+                                ? tab.sx
+                                  ? tab.sx.background
+                                  : tab.backgroundColor
+                                : '#DCDCDC',
+                            color: tabValue_Plateform === index ? (tab.sx ? tab.sx.color : 'white') : 'black',
+                            padding: '19.2px',
+                            ...(tabValue_Plateform === index && tab.sx ? tab.sx : {}),
+                          }}
+                        />
+                      ))}
+                    </Tabs>
+                    <Box sx={{ flexGrow: 1 }}>
+                      <TabPanel_plateform value={tabValue_Plateform} index={0}>
+                        <PlateformFB />
+                      </TabPanel_plateform>
 
-                <TabPanel value={tabValue} index={1}>
-                  <PlateformGoogle />
-                </TabPanel>
-                <TabPanel value={tabValue} index={2}>
-                  <PlateformSnapchat />
-                </TabPanel>
-                <TabPanel value={tabValue} index={3}>
-                  <PlateformTiktok />
-                </TabPanel>
-                <TabPanel value={tabValue} index={4}>
-                  <PlateformBing />
-                </TabPanel>
-                <TabPanel value={tabValue} index={5}>
-                  <PlateformTaboola />
-                </TabPanel>
-                <TabPanel value={tabValue} index={6}>
-                  <PlateformOutbrain />
-                </TabPanel>
-              </Box>
-            </Box>
-          </DashboardCard>
+                      <TabPanel_plateform value={tabValue_Plateform} index={1}>
+                        <PlateformGoogle />
+                      </TabPanel_plateform>
+                      <TabPanel_plateform value={tabValue_Plateform} index={2}>
+                        <PlateformSnapchat />
+                      </TabPanel_plateform>
+                      <TabPanel_plateform value={tabValue_Plateform} index={3}>
+                        <PlateformTiktok />
+                      </TabPanel_plateform>
+                      <TabPanel_plateform value={tabValue_Plateform} index={4}>
+                        <PlateformBing />
+                      </TabPanel_plateform>
+                      <TabPanel_plateform value={tabValue_Plateform} index={5}>
+                        <PlateformTaboola />
+                      </TabPanel_plateform>
+                      <TabPanel_plateform value={tabValue_Plateform} index={6}>
+                        <PlateformOutbrain />
+                      </TabPanel_plateform>
+                    </Box>
+                  </Box>
+                </DashboardCard>
+              </TabPanel>
+            ))
+          ) : (
+            <DashboardCard sx={{ padding: '0px' }} title={`Ad Platform`}></DashboardCard>
+          )}
         </Box>
       </Box>
     </Box>
