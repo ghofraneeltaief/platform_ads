@@ -4,37 +4,36 @@ import Component from './Component';
 import './AdPlateform.css';
 import AdPlateform_table from './component_adPlateform/AdPlateformTable';
 
-// Composant principal de la plateforme publicitaire
 function AdPlatform() {
-  const [selectedVerticalId, setSelectedVerticalId] = useState('');
-  const [selectedVerticals, setSelectedVerticals] = useState([]);
+  /* Begin: Date From */
   const [selectedDateFrom, setSelectedDateFrom] = useState(null);
+  const handleDateFromSelect = (dateFrom) => {
+    setSelectedDateFrom(dateFrom);
+  };
+  /* End: Date From */
+  /* Begin: Date To */
   const [selectedDateTo, setSelectedDateTo] = useState(null);
-
+  const handleDateToSelect = (dateTo) => {
+    setSelectedDateTo(dateTo);
+  };
+  /* End: Date To */
+  
   // Gestionnaire de sélection de vertical
+  const [selectedVerticalId, setSelectedVerticalId] = useState('');
   const handleVerticalSelect = (verticalId) => {
     setSelectedVerticalId(verticalId);
   };
 
   // Gestionnaire de sélection de nom vertical
+  const [selectedVerticals, setSelectedVerticals] = useState([]);
   const handleVerticalSelectName = (verticalNames) => {
     setSelectedVerticals(verticalNames);
   };
 
-  // Gestionnaire de sélection de date de début
-  const handleDateFromSelect = (dateFrom) => {
-    setSelectedDateFrom(dateFrom);
-  };
-
-  // Gestionnaire de sélection de date de fin
-  const handleDateToSelect = (dateTo) => {
-    setSelectedDateTo(dateTo);
-  };
-
   return (
     <Box sx={{ width: 1 }}>
-      <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
-        <Box gridColumn="span 12">
+      <Box display="grid" gridTemplateColumns="repeat(16, 1fr)" gap={2}>
+        <Box gridColumn="span 16">
           <Component
             onVerticalSelect={handleVerticalSelect}
             onDateFromSelect={handleDateFromSelect}
@@ -42,7 +41,7 @@ function AdPlatform() {
             onVerticalSelectName={handleVerticalSelectName}
           />
         </Box>
-        <Box gridColumn="span 12">
+        <Box gridColumn="span 16">
           <AdPlateform_table
             selectedVerticalId={selectedVerticalId}
             selectedDateFrom={selectedDateFrom}

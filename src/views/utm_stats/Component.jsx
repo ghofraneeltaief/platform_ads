@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Typography, Button, TextField  } from '@mui/material';
+import { Grid, Typography, Button, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import '../pioche/components/selection.css';
 import { BASE_URL, api_version } from '../authentication/config';
+import { FaFileExport } from 'react-icons/fa';
+import { ImLoop2 } from 'react-icons/im';
 
-function Component({ onVerticalSelect, onVerticalSelectName, onDateFromSelect, onDateToSelect, onRecalculateClick }) {
+function Component({
+  onVerticalSelect,
+  onVerticalSelectName,
+  onDateFromSelect,
+  onDateToSelect,
+  onRecalculateClick,
+}) {
   async function getToken() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -75,7 +83,13 @@ function Component({ onVerticalSelect, onVerticalSelectName, onDateFromSelect, o
       console.error(error);
     }
   };
-
+  // Calculer la date maximale autorisée (30 jours à partir de la date actuelle)
+  const currentDate = new Date();
+  const minDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() - 1,
+    currentDate.getDate(),
+  );
   return (
     <>
       <Grid container spacing={3}>
@@ -90,9 +104,7 @@ function Component({ onVerticalSelect, onVerticalSelectName, onDateFromSelect, o
             getOptionLabel={(option) => option.vertical_code}
             value={selectedVerticals}
             onChange={handleVerticalSelect}
-            renderInput={(params) => (
-              <TextField {...params} label="Choisir" />
-            )}
+            renderInput={(params) => <TextField {...params} label="Choisir" />}
           />
         </Grid>
         <Grid item xs={3.6}>
@@ -106,6 +118,8 @@ function Component({ onVerticalSelect, onVerticalSelectName, onDateFromSelect, o
                 className="form-control"
                 value={selectedDateFrom}
                 onChange={(e) => handleDateFromChange(e.target.value)}
+                /*min={minDate.toISOString().split('T')[0]}*/
+                max={new Date().toISOString().split('T')[0]}
               />
             </Grid>
             <Grid item xs={6}>
@@ -114,16 +128,18 @@ function Component({ onVerticalSelect, onVerticalSelectName, onDateFromSelect, o
                 className="form-control"
                 value={selectedDateTo}
                 onChange={(e) => handleDateToChange(e.target.value)}
+                /* min={minDate.toISOString().split('T')[0]}*/
+                max={new Date().toISOString().split('T')[0]}
               />
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={4} display={'flex'} alignItems={'center'}>
           <Button variant="contained" onClick={handleRecalculate} sx={{ marginRight: '10px' }}>
-            Recalculer
+            <ImLoop2 /> <Typography sx={{ paddingLeft: '7px' }}>Recalculer</Typography>
           </Button>
-          <Button variant="contained" color="secondary">
-            Exporter
+          <Button variant="contained" color="success">
+            <FaFileExport /> <Typography sx={{ paddingLeft: '7px' }}>Exporter</Typography>
           </Button>
         </Grid>
       </Grid>

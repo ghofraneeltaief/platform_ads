@@ -10,6 +10,7 @@ import PlateformTaboola from './Plateforms/Plateform_Taboola';
 import PlateformOutbrain from './Plateforms/Plateform_Outbrain';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import Swal from 'sweetalert2';
 import '../AdPlateform.css';
 import { BASE_URL, api_version } from '../../authentication/config';
 
@@ -36,10 +37,12 @@ function AdPlateform_table({
   selectedDateTo,
   selectedVerticals,
 }) {
+  const [error, setError] = useState(null);
   const [tabValue, setTabValue] = useState(0);
   const [tabValue_Plateform, setTabValue_Plateform] = useState(0);
   const [selectedPlatformIds, setSelectedPlatformIds] = useState([]);
   const [socialNetworks, setSocialNetworks] = useState([]);
+  const [DataCampaign, setDataCampaign] = useState([]);
 
   // Tableau des libellés et couleurs des onglets
   const tabLabels = [
@@ -109,11 +112,41 @@ function AdPlateform_table({
       console.error(error);
     }
   };
-
+  const fetchCampaign = async () => {
+    try {
+      const token = await getToken();
+      const responseObject = JSON.parse(token);
+      const accessToken = responseObject.access_token;
+      const formdata = new FormData();
+      formdata.append('Hipto-Authorization', accessToken);
+      const requestOptions = {
+        method: 'POST',
+        body: formdata,
+      };
+      const response = await fetch(`${BASE_URL}/${api_version}/report/campaigns?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}&sn_id=${selectedPlatformIds}`, requestOptions);
+      const dataCampaign = await response.json();
+      setDataCampaign(dataCampaign);
+    } catch (error) {
+      handleError(error);
+    }
+  };
   useEffect(() => {
     fetchData();
-  }, []);
+    if (selectedVerticalId && selectedDateFrom && selectedDateTo && selectedPlatformIds) {
+    fetchCampaign();
+    }
+  }, [selectedVerticalId, selectedDateFrom, selectedDateTo, selectedPlatformIds]);
 
+  const handleError = (error) => {
+    Swal.fire({
+      icon: 'error',
+      text: 'Erreur lors de la récupération des données ! ',
+      width: '30%',
+      confirmButtonText: "Ok, j'ai compris!",
+      confirmButtonColor: '#0095E8',
+    });
+    setError('Erreur lors de la récupération des données.');
+  };
   return (
     <>
       <Tabs value={tabValue} onChange={handleTabChange} aria-label="vertical tabs example">
@@ -123,8 +156,8 @@ function AdPlateform_table({
           ))}
       </Tabs>
       {selectedVerticalId && selectedVerticalId.length > 0 ? (
-        selectedVerticalId.map((verticalId, index) => (
-          <TabPanel key={index} value={tabValue} index={index}>
+        selectedVerticalId.map((verticalId, id) => (
+          <TabPanel key={id} value={tabValue} index={id}>
             <DashboardCard sx={{ padding: '0px' }}>
               <Box sx={{ marginBottom: '30px', display: 'flex', alignItems: 'center' }}>
                 <Typography variant="subtitle1" sx={{ marginRight: '10px' }}>
@@ -144,7 +177,6 @@ function AdPlateform_table({
               <Box sx={{ display: 'flex' }}>
                 <Tabs
                   orientation="vertical"
-                  variant="scrollable"
                   value={tabValue_Plateform}
                   onChange={handleTabChange_Plateform}
                 >
@@ -173,7 +205,7 @@ function AdPlateform_table({
                 </Tabs>
                 <Box sx={{ flexGrow: 1 }}>
                   <TabPanelPlateform value={tabValue_Plateform} index={0}>
-                    <PlateformFB />
+                    <PlateformFB donnees={DataCampaign}/>
                   </TabPanelPlateform>
                   <TabPanelPlateform value={tabValue_Plateform} index={1}>
                     <PlateformGoogle />

@@ -4,6 +4,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
+import { ImLoop2 } from "react-icons/im";
 import { Grid, Typography, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import './selection.css';
 import { BASE_URL, api_version } from '../../authentication/config';
@@ -146,7 +147,7 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
         </FormControl>
       </Box>
       <Box my={2}>
-        <Button variant="contained" onClick={handleRecalculate}>Recalculer</Button>
+        <Button variant="contained" onClick={handleRecalculate}><ImLoop2 />   <Typography  sx={{ paddingLeft: '7px' }}>Recalculer</Typography></Button>
       </Box>
     </DashboardCard>
   );
