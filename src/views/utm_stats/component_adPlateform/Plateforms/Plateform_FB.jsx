@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableHead,
@@ -7,22 +7,14 @@ import {
   TableCell,
   IconButton,
   Switch,
-  CircularProgress
 } from '@mui/material';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import RemoveCircleOutlinedIcon from '@mui/icons-material/RemoveCircleOutlined';
 
 function Plateform_FB({ donnees }) {
-  const [isLoading, setIsLoading] = useState(true); // State to track loading status
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    // Simulate API data fetching
-    setTimeout(() => {
-      setIsLoading(false); // Set loading to false after a delay (simulating API response delay)
-    }, 10000); // Adjust the delay time as needed
-  }, [donnees]);
+  
   const handleDetailsToggle = () => {
     setIsDetailsOpen(!isDetailsOpen);
   };
@@ -62,8 +54,8 @@ function Plateform_FB({ donnees }) {
           </TableRow>
         </TableHead>
         <TableBody>
-        {donnees && donnees.length > 0 ? (
-              donnees.map((row, index) => (
+          {donnees && donnees.length > 0 ? (
+            donnees.map((row, index) => (
               <TableRow key={index} className={isDetailsOpen ? 'tableRowOpen' : ''}>
                 <TableCell>
                   {/* Utiliser un IconButton pour contrôler l'ouverture et la fermeture des détails */}
@@ -88,20 +80,14 @@ function Plateform_FB({ donnees }) {
                 <TableCell sx={{ textAlign: 'center' }}>-</TableCell>
               </TableRow>
             ))
-            ): isLoading ?( // Display CircularProgress if data is still loading
-         <TableRow>
-           <TableCell colSpan={11} sx={{ textAlign: 'center' }}>
-             <CircularProgress />
-           </TableCell>
-         </TableRow>
-        ) : ( // Display CircularProgress if data is still loading
-          <TableRow>
-            <TableCell colSpan={11} sx={{ textAlign: 'center' }}>
-              Aucune information n'est disponible
-            </TableCell>
-          </TableRow>
-         )
-        }
+          ) : (
+            // Display CircularProgress if data is still loading
+            <TableRow>
+              <TableCell colSpan={11} sx={{ textAlign: 'center' }}>
+                Aucune information n'est disponible
+              </TableCell>
+            </TableRow>
+          )}
           {/* Afficher les détails si isDetailsOpen est true */}
           {isDetailsOpen && (
             <TableRow>

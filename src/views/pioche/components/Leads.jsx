@@ -9,10 +9,19 @@ import {
   TableRow,
   TextField,
   TablePagination,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+  IconButton,
 } from '@mui/material';
 import DashboardCard from '../../../components/shared/DashboardCard';
 import { BASE_URL, api_version } from '../../authentication/config';
 import Swal from 'sweetalert2';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 function Leads({
   selectedVerticalId,
@@ -36,6 +45,9 @@ function Leads({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [error, setError] = useState(null);
+  const [selectedFilter, setSelectedFilter] = useState({});
+  const [selectedFilters, setSelectedFilters] = useState({});
+
 
   const fetchTableHeaders = useCallback(async () => {
     try {
@@ -119,6 +131,13 @@ function Leads({
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+  const handleFilterChange = (header, value) => {
+    setSelectedFilters({ ...selectedFilters, [header]: value });
+  };
+  const handleFilterIconClick = (header) => {
+    setSelectedFilter({ ...selectedFilter, [header]: true });
+  };
+  
 
   const renderTableHeaders = () => {
     return tableHeaders.map((header) => (
@@ -126,20 +145,66 @@ function Leads({
         <Typography variant="subtitle2" fontWeight={600}>
           {header}
         </Typography>
+        <IconButton onClick={() => handleFilterIconClick(header)}>
+          <FilterListIcon />
+        </IconButton>
+        {selectedFilter[header] && (
+          <FilterDialog
+            open={Boolean(selectedFilter[header])}
+            values={getUniqueValues(header)}
+            onClose={() => handleFilterChange(header, null)}
+            onSelect={(value) => handleFilterChange(header, value)}
+          />
+        )}
       </TableCell>
     ));
   };
+  const getUniqueValues = (header) => {
+    const uniqueValues = new Set();
+    tableData.forEach((row) => {
+      uniqueValues.add(row[header]);
+    });
+    return [...uniqueValues];
+    
+  };
+  const FilterDialog = ({ open, values, onClose, onSelect }) => {
+    return (
+      <Dialog open={open} onClose={onClose}>
+        <DialogTitle>Filter Values</DialogTitle>
+        <DialogContent>
+          <List>
+            {values.map((value) => (
+              <ListItem key={value}>
+                <ListItemButton onClick={() => onSelect(value)}>
+                  <ListItemText primary={value} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+      </Dialog>
+    );
+  };
   const renderTableBody = () => {
-    if (tableData.length === 0) {
-      return (
-        <TableRow>
-          <TableCell colSpan={tableHeaders.length + 7}>
-            <Typography variant="subtitle2">No data available in table</Typography>
-          </TableCell>
-        </TableRow>
-      );
+    let filteredData = tableData;
+
+  Object.keys(selectedFilters).forEach((header) => {
+    const value = selectedFilters[header];
+    if (value) {
+      filteredData = filteredData.filter((row) => row[header] === value);
+    }
+  });
+
+  if (filteredData.length === 0) {
+    return (
+      <TableRow>
+        <TableCell colSpan={tableHeaders.length + 7}>
+          <Typography variant="subtitle2">Aucune donnée disponible avec les filtres sélectionnés</Typography>
+        </TableCell>
+      </TableRow>
+    );
     } else {
-      return tableData
+      return filteredData
         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
         .map((row, index) => (
           <TableRow key={index}>
