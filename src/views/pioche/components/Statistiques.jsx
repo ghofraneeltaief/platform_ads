@@ -64,7 +64,7 @@ function Statistiques({ CanalCount, SourceCount }) {
       </Box>
       <Grid container spacing={3}>
         <Grid item xs={12} lg={6}>
-          <DashboardCard backgroundColor="#3188DC" color="white" title="Canal">
+          <DashboardCard backgroundColor="#080655" color="white" title="Canal">
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Grid container>
                 {Object.keys(CanalCount).map((canal, index) => (
@@ -83,7 +83,7 @@ function Statistiques({ CanalCount, SourceCount }) {
           </DashboardCard>
         </Grid>
         <Grid item xs={12} lg={6}>
-          <DashboardCard backgroundColor="#080655" color="white" title="Source d’acquisition">
+          <DashboardCard backgroundColor="#3188DC" color="white" title="Source d’acquisition">
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Grid container>
                 {Object.keys(SourceCount).map((source, index) => (

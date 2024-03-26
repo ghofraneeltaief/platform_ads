@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import DashboardCard from '../../../components/shared/DashboardCard';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
+import Select from 'react-select';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import { ImLoop2 } from "react-icons/im";
-import { Grid, Typography, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { ImLoop2 } from 'react-icons/im';
+import { Grid, Typography, Button } from '@mui/material';
 import './selection.css';
 import { BASE_URL, api_version } from '../../authentication/config';
 
@@ -20,17 +19,18 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
   }
 
   const [verticals, setVerticals] = useState([]);
-  const [selectedVertical, setSelectedVertical] = useState(null);
   const [sources, setSources] = useState([]);
   const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10));
   const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10));
+  const [selectedVertical, setSelectedVertical] = useState(null); // Nouvelle variable d'état
 
+  const formdata = new FormData();
   const fetchVerticals = async () => {
     try {
       const token = await getToken();
       const responseObject = JSON.parse(token);
       const accessToken = responseObject.access_token;
-      const formdata = new FormData();
+
       formdata.append('Hipto-Authorization', accessToken);
       const requestOptions = {
         method: 'POST',
@@ -48,30 +48,39 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
     fetchVerticals();
   }, []);
 
-  const handleVerticalSelect = (event, value) => {
-    setSelectedVertical(value);
-    onVerticalSelect(value?.vertical_id || '');
-    fetchSources(value?.vertical_id);
+  const handleVerticalSelect = (selectedOption) => {
+    setSelectedVertical(selectedOption); // Mise à jour de la verticale sélectionnée
+    onVerticalSelect(selectedOption.value);
   };
 
-  const fetchSources = async (verticalId) => {
+  /* Begin: fetchSources */
+  const fetchSources = async () => {
     try {
       const token = await getToken();
       const responseObject = JSON.parse(token);
       const accessToken = responseObject.access_token;
-      const formdata = new FormData();
       formdata.append('Hipto-Authorization', accessToken);
       const requestOptions = {
         method: 'POST',
         body: formdata,
       };
-      const response = await fetch(`${BASE_URL}/${api_version}/sources/?vertical_id=${verticalId}`, requestOptions);
+      const response = await fetch(
+        `${BASE_URL}/${api_version}/sources/?vertical_id=${selectedVertical.value}`, // Utilisation de la verticale sélectionnée
+        requestOptions,
+      );
       const data = await response.json();
       setSources(data);
     } catch (error) {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (selectedVertical) {
+      fetchSources();
+    }
+  }, [selectedVertical]);
+  /* End: fetchSources */
 
   const handleDateFromChange = (dateFrom) => {
     setSelectedDateFrom(dateFrom);
@@ -90,11 +99,22 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
       if (onRecalculateClick) {
         onRecalculateClick();
       }
-    } catch (error){
+    } catch (error) {
       console.error(error);
     }
   };
-
+  /* Begin: Style select */
+  const ITEM_HEIGHT = 30;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 270,
+      },
+    },
+  };
+  /* End: Style select */
   return (
     <DashboardCard sx={{ padding: '0px' }} title="Sélection">
       <Box pb={4}>
@@ -127,27 +147,39 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
           />
         </Grid>
       </Grid>
-      <Autocomplete
-        options={verticals}
-        getOptionLabel={(option) => option.vertical_code}
-        value={selectedVertical}
+      <Select
+        name="Verticale"
+        options={verticals.map((option) => ({
+          value: option.vertical_id,
+          label: option.vertical_code,
+        }))}
+        value={selectedVertical} // Utilisation de la variable d'état selectedVertical
         onChange={handleVerticalSelect}
-        renderInput={(params) => <TextField {...params} label="Verticales" />}
+        placeholder="Verticale"
+        isSearchable={true}
+        MenuProps={MenuProps}
+        className="basic-single"
+        classNamePrefix="select"
+        menuPortalTarget={document.body}
+        menuPosition={'fixed'}
       />
       <Box my={2}>
-        <FormControl fullWidth>
-          <InputLabel id="sources-label">Sources</InputLabel>
-          <Select labelId="sources-label" id="sources-select" label="Source">
-            {sources.map((source, index) => (
-              <MenuItem key={index} value={source.source_id}>
-                {source.source_name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Select
+          options={sources.map((option) => ({
+            value: option.source_id,
+            label: option.source_name,
+          }))}
+          placeholder="Source"
+          isSearchable={true}
+          MenuProps={MenuProps}
+          menuPortalTarget={document.body}
+          menuPosition={'fixed'}
+        />
       </Box>
       <Box my={2}>
-        <Button variant="contained" onClick={handleRecalculate}><ImLoop2 />   <Typography  sx={{ paddingLeft: '7px' }}>Recalculer</Typography></Button>
+        <Button variant="contained" onClick={handleRecalculate}>
+          <ImLoop2 /> <Typography sx={{ paddingLeft: '7px' }}>Recalculer</Typography>
+        </Button>
       </Box>
     </DashboardCard>
   );

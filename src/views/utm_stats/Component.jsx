@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Typography, Button, TextField } from '@mui/material';
-import Autocomplete from '@mui/material/Autocomplete';
+import { Grid, Typography, Button } from '@mui/material';
+import Select from 'react-select';
 import '../pioche/components/selection.css';
 import { BASE_URL, api_version } from '../authentication/config';
 import { FaFileExport } from 'react-icons/fa';
@@ -46,16 +46,13 @@ function Component({
   }, []);
 
   const [verticals, setVerticals] = useState([]);
-  const [selectedVerticals, setSelectedVerticals] = useState([]);
+  const [selectedVertical, setSelectedVertical] = useState([]);
   const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10));
   const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10));
 
-  const handleVerticalSelect = (event, values) => {
-    const verticalIds = values.map((value) => value.vertical_id);
-    const verticalNames = values.map((value) => value.vertical_code);
-    setSelectedVerticals(values);
-    onVerticalSelect(verticalIds);
-    onVerticalSelectName(verticalNames);
+  const handleVerticalSelect = (selectedOption) => {
+    setSelectedVertical(selectedOption); // Mettre à jour l'état avec la nouvelle option sélectionnée
+    onVerticalSelect(selectedOption.value); // Appeler la fonction de rappel avec l'ID de la verticale
   };
 
   const handleDateFromChange = (dateFrom) => {
@@ -70,8 +67,8 @@ function Component({
 
   const handleRecalculate = async () => {
     try {
-      const verticalIds = selectedVerticals.map((vertical) => vertical.vertical_id);
-      const verticalNames = selectedVerticals.map((value) => value.vertical_code);
+      const verticalIds = selectedVertical.map((vertical) => vertical.value);
+      const verticalNames = selectedVertical.map((value) => value.label);
       onVerticalSelectName(verticalNames);
       onVerticalSelect(verticalIds);
       onDateFromSelect(selectedDateFrom);
@@ -90,6 +87,7 @@ function Component({
     currentDate.getMonth() - 1,
     currentDate.getDate(),
   );
+
   return (
     <>
       <Grid container spacing={3}>
@@ -97,14 +95,15 @@ function Component({
           <Typography variant="h6" mb={1}>
             Verticales
           </Typography>
-          <Autocomplete
-            multiple
-            id="verticals-select"
-            options={verticals}
-            getOptionLabel={(option) => option.vertical_code}
-            value={selectedVerticals}
+          <Select
+            isMulti
+            options={verticals.map((option) => ({
+              value: option.vertical_id,
+              label: option.vertical_code,
+            }))}
+            value={selectedVertical}
             onChange={handleVerticalSelect}
-            renderInput={(params) => <TextField {...params} label="Choisir" />}
+            placeholder="Choisir"
           />
         </Grid>
         <Grid item xs={3.6}>
@@ -118,7 +117,6 @@ function Component({
                 className="form-control"
                 value={selectedDateFrom}
                 onChange={(e) => handleDateFromChange(e.target.value)}
-                /*min={minDate.toISOString().split('T')[0]}*/
                 max={new Date().toISOString().split('T')[0]}
               />
             </Grid>
@@ -128,7 +126,6 @@ function Component({
                 className="form-control"
                 value={selectedDateTo}
                 onChange={(e) => handleDateToChange(e.target.value)}
-                /* min={minDate.toISOString().split('T')[0]}*/
                 max={new Date().toISOString().split('T')[0]}
               />
             </Grid>
