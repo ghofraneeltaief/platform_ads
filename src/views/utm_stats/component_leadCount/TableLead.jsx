@@ -125,8 +125,8 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
     { name: 'Snapchat', logo: snapchat },
     { name: 'TikTok', logo: tiktok },
     { name: 'Bing', logo: bing },
-    { name: 'Taboola', logo: taboola, style: { backgroundColor: '#000000' } },
-    { name: 'Outbrain', logo: outbrain, style: { backgroundColor: '#000000' } },
+    { name: 'Taboola', logo: taboola,},
+    { name: 'Outbrain', logo: outbrain, },
     { name: 'Autre', logo: autre },
   ];
 
@@ -144,7 +144,7 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <img
               src={platform.logo}
-              style={{ width: '35px', marginRight: '10px', ...(platform.style || {}) }}
+              style={{ width: '35px', marginRight: '10px' }}
               alt={`${platform.name} Logo`}
             />
             <Typography>{platform.name}</Typography>

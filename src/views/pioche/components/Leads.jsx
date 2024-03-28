@@ -1,27 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  Typography,
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TextField,
-  TablePagination,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-  IconButton,
-} from '@mui/material';
+import * as React from 'react';
+import { Typography, Box, TextField, TablePagination } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid'; // Import de DataGrid
 import DashboardCard from '../../../components/shared/DashboardCard';
 import { BASE_URL, api_version } from '../../authentication/config';
 import Swal from 'sweetalert2';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import './leads.css';
 
 function Leads({
   selectedVerticalId,
@@ -40,16 +23,13 @@ function Leads({
     }
   };
 
-  const [tableHeaders, setTableHeaders] = useState([]);
-  const [tableData, setTableData] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [error, setError] = useState(null);
-  const [selectedFilter, setSelectedFilter] = useState({});
-  const [selectedFilters, setSelectedFilters] = useState({});
+  const [tableHeaders, setTableHeaders] = React.useState([]);
+  const [tableData, setTableData] = React.useState([]);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
+  const [error, setError] = React.useState(null);
 
-
-  const fetchTableHeaders = useCallback(async () => {
+  const fetchTableHeaders = React.useCallback(async () => {
     try {
       const token = await getToken();
       const accessToken = JSON.parse(token).access_token;
@@ -70,7 +50,7 @@ function Leads({
     }
   }, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
 
-  const fetchTableData = useCallback(async () => {
+  const fetchTableData = React.useCallback(async () => {
     try {
       const token = await getToken();
       const accessToken = JSON.parse(token).access_token;
@@ -111,14 +91,15 @@ function Leads({
     setError(errorMessage);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
-      Promise.all([fetchTableHeaders(), fetchTableData()])
-        .catch((error) => handleFetchError('Erreur lors de la récupération des données !'));
+      Promise.all([fetchTableHeaders(), fetchTableData()]).catch((error) =>
+        handleFetchError('Erreur lors de la récupération des données !'),
+      );
     }
   }, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setTableData(tableDataVide);
     setTableHeaders(tableDataVide);
   }, [tableDataVide]);
@@ -131,144 +112,7 @@ function Leads({
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-  const handleFilterChange = (header, value) => {
-    setSelectedFilters({ ...selectedFilters, [header]: value });
-  };
-  const handleFilterIconClick = (header) => {
-    setSelectedFilter({ ...selectedFilter, [header]: true });
-  };
-  
 
-  const renderTableHeaders = () => {
-    return tableHeaders.map((header) => (
-      <TableCell key={header} sx={{ backgroundColor: '#A367DC', color: 'white' }}>
-        <Typography variant="subtitle2" fontWeight={600}>
-          {header}
-        </Typography>
-        <IconButton onClick={() => handleFilterIconClick(header)}>
-          <FilterListIcon />
-        </IconButton>
-        {selectedFilter[header] && (
-          <FilterDialog
-            open={Boolean(selectedFilter[header])}
-            values={getUniqueValues(header)}
-            onClose={() => handleFilterChange(header, null)}
-            onSelect={(value) => handleFilterChange(header, value)}
-          />
-        )}
-      </TableCell>
-    ));
-  };
-  const getUniqueValues = (header) => {
-    const uniqueValues = new Set();
-    tableData.forEach((row) => {
-      uniqueValues.add(row[header]);
-    });
-    return [...uniqueValues];
-    
-  };
-  const FilterDialog = ({ open, values, onClose, onSelect }) => {
-    return (
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Filter Values</DialogTitle>
-        <DialogContent>
-          <List>
-            {values.map((value) => (
-              <ListItem key={value}>
-                <ListItemButton onClick={() => onSelect(value)}>
-                  <ListItemText primary={value} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </DialogContent>
-      </Dialog>
-    );
-  };
-  const renderTableBody = () => {
-    let filteredData = tableData;
-
-  Object.keys(selectedFilters).forEach((header) => {
-    const value = selectedFilters[header];
-    if (value) {
-      filteredData = filteredData.filter((row) => row[header] === value);
-    }
-  });
-
-  if (filteredData.length === 0) {
-    return (
-      <TableRow>
-        <TableCell colSpan={tableHeaders.length + 7}>
-          <Typography variant="subtitle2">Aucune donnée disponible avec les filtres sélectionnés</Typography>
-        </TableCell>
-      </TableRow>
-    );
-    } else {
-      return filteredData
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-        .map((row, index) => (
-          <TableRow key={index}>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.nom}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.data_created_date}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.id}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.nom}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.prenom}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.email}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.telephone}</Typography>
-                  </TableCell>
-                  {tableHeaders.map((header) => (
-                    <TableCell key={header}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Box>
-                          <Typography variant="subtitle2"></Typography>
-                          <Typography
-                            color="textSecondary"
-                            sx={{ fontSize: '13px' }}
-                          >
-                            {row[header]}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </TableCell>
-                  ))}
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.canal}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_source}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_medium}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_campaign}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_term}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_content}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="subtitle2">{row.utm_angle}</Typography>
-                  </TableCell>
-                </TableRow>
-        ));
-    }
-  };
   return (
     <DashboardCard>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -306,96 +150,119 @@ function Leads({
         <TextField id="outlined-basic" label="Rechercher" variant="outlined" />
       </Box>
       <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
-        <Table aria-label="simple table" sx={{ whiteSpace: 'nowrap', mt: 2 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ backgroundColor: '#67B7DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  IDH
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#67B7DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Date
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#67B7DC', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Id
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#626DD2', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Nom
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#626DD2', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Prenom
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#626DD2', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Email
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#626DD2', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Téléphone
-                </Typography>
-              </TableCell>
-              {renderTableHeaders()}
-              <TableCell sx={{ backgroundColor: '#DC67AB', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Canal
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#DC67AB', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  utm_source
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#DC67AB', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  utm_medium
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#DC67AB', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  utm_campaign
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#DC67AB', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  utm_term
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#DC67AB', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  utm_content
-                </Typography>
-              </TableCell>
-              <TableCell sx={{ backgroundColor: '#DC67AB', color: 'white' }}>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  utm_angle
-                </Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-          {renderTableBody()}
-          </TableBody>
-        </Table>
+        <DataGrid
+          columns={[
+            {
+              field: 'fk_data_id',
+              headerName: 'IDH',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header',
+            },
+            {
+              field: 'data_created_date',
+              headerName: 'Date',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header',
+            },
+            {
+              field: 'id',
+              headerName: 'ID',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header',
+            },
+            {
+              field: 'nom',
+              headerName: 'Nom',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header2',
+            },
+            {
+              field: 'prenom',
+              headerName: 'Prenom',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header2',
+            },
+            {
+              field: 'email',
+              headerName: 'Email',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header2',
+            },
+            {
+              field: 'telephone',
+              headerName: 'Téléphone',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header2',
+            },
+            ...tableHeaders.map((header) => ({
+              field: header,
+              headerName: header,
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header3',
+            })),
+            {
+              field: 'canal',
+              headerName: 'Canal',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header4',
+            },
+            {
+              field: 'utm_source',
+              headerName: 'utm_source',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header4',
+            },
+            {
+              field: 'utm_medium',
+              headerName: 'utm_medium',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header4',
+            },
+            {
+              field: 'utm_campaign',
+              headerName: 'utm_campaign',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header4',
+            },
+            {
+              field: 'utm_term',
+              headerName: 'utm_term',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header4',
+            },
+            {
+              field: 'utm_content',
+              headerName: 'utm_content',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header4',
+            },
+            {
+              field: 'utm_angle',
+              headerName: 'utm_angle',
+              width: 150,
+              sortable: true,
+              headerClassName: 'custom-header4',
+            },
+          ]}
+          rows={tableData}
+          pageSize={rowsPerPage}
+          autoHeight
+        />
       </Box>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 50]}
-        component="div"
-        count={tableData.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
     </DashboardCard>
   );
 }
