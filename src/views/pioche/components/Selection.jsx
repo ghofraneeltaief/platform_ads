@@ -8,7 +8,7 @@ import { Grid, Typography, Button } from '@mui/material';
 import './selection.css';
 import { BASE_URL, api_version } from '../../authentication/config';
 
-function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalculateClick }) {
+function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecalculateClick,onTimeFromSelect,onTimeToSelect }) {
   async function getToken() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -22,6 +22,8 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
   const [sources, setSources] = useState([]);
   const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10));
   const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10));
+  const [selectedTimeFrom, setSelectedTimeFrom] = useState('08:00');
+  const [selectedTimeTo, setSelectedTimeTo] = useState('17:00');
   const [selectedVertical, setSelectedVertical] = useState(null); // Nouvelle variable d'état
 
   const formdata = new FormData();
@@ -91,7 +93,14 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
     setSelectedDateTo(dateTo);
     onDateToSelect(dateTo);
   };
-
+  const handleTimeFromChange = (timeFrom) => {
+    setSelectedTimeFrom(timeFrom);
+    onTimeFromSelect(timeFrom);
+  };
+  const handleTimeToChange = (timeTo) => {
+    setSelectedTimeTo(timeTo);
+    onTimeToSelect(timeTo);
+  };
   const handleRecalculate = async () => {
     try {
       onDateFromSelect(selectedDateFrom);
@@ -145,6 +154,25 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
             value={selectedDateTo}
             onChange={(e) => handleDateToChange(e.target.value)}
           />
+        </Grid>
+      </Grid>
+      <Typography variant="h6" sx={{ fontWeight: '400' }} mb={1}>
+        Heure
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <Typography variant="p" sx={{ fontWeight: '400' }} mb={1}>
+            De :
+          </Typography>
+          <input type="time" className="form-control" value={selectedTimeFrom}
+            onChange={(e) => handleTimeFromChange(e.target.value)} />
+        </Grid>
+        <Grid item xs={6}>
+          <Typography variant="p" sx={{ fontWeight: '400' }} mb={1}>
+            à :
+          </Typography>
+          <input type="time" className="form-control" value={selectedTimeTo}
+            onChange={(e) => handleTimeToChange(e.target.value)} />
         </Grid>
       </Grid>
       <Select

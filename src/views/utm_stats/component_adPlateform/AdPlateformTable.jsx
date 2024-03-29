@@ -52,7 +52,14 @@ function AdPlateform_table() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [selectedOptions, setSelectedOptions] = React.useState(null);
+   // Options pour le Select avec des cases à cocher
+   const selectOptions = platforms.map((platform) => ({
+    label: platform.label,
+    value: platform.value,
+  }));
   return (
+    
     <DashboardCard sx={{ padding: '0px' }} title={`AD Platform`}>
       <Box sx={{ width: '100%', typography: 'body1' }}>
         <TabContext value={value}>
@@ -116,7 +123,14 @@ function AdPlateform_table() {
                         </Typography>
                       </Box>
                       <Box gridColumn="span 8">
-                        <Select className="basic-single" classNamePrefix="select" name="color" />
+                      <Select
+                          className="basic-single"
+                          classNamePrefix="select"
+                          name="color"
+                          options={selectOptions}
+                          onChange={setSelectedOptions}
+                          isMulti
+                        />
                       </Box>
                     </Box>
                     <Box
@@ -136,9 +150,11 @@ function AdPlateform_table() {
                         <FormControlLabel control={<Checkbox />} label="Inactif" />
                       </Box>
                     </Box>{' '}
-                    <Button variant="contained" color="success">
-                      Sauvegarder
-                    </Button>
+                    <Box display="flex" justifyContent="flex-end" marginTop={5}>
+                      <Button variant="contained" color="success" onClick={handleClose}>
+                        Sauvegarder
+                      </Button>
+                    </Box>
                   </Box>
                 </Modal>
               </Box>
