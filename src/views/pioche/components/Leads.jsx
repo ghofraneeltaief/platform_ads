@@ -149,6 +149,9 @@ function Leads({
         </Typography>
         <TextField id="outlined-basic" label="Rechercher" variant="outlined" />
       </Box>
+      {tableData.length === 0 ? (
+      <Typography variant="body1"></Typography>
+    ) : (
       <Box sx={{ overflow: 'auto', width: { xs: '280px', sm: 'auto' } }}>
         <DataGrid
           columns={[
@@ -261,8 +264,12 @@ function Leads({
           rows={tableData}
           pageSize={rowsPerPage}
           autoHeight
+          disableColumnSelector
+          localeText={{
+            noRowsLabel: 'Aucune données disponible.',
+          }}
         />
-      </Box>
+      </Box>)}
     </DashboardCard>
   );
 }
