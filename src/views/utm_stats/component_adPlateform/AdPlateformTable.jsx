@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -12,8 +12,9 @@ import TextField from '@mui/material/TextField';
 import Select from 'react-select';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import CloseIcon from '@mui/icons-material/Close';
 
-// Importez vos logos
+// Importez logos
 import facebook from '../../../assets/images/logos/facebook.png';
 import google from '../../../assets/images/logos/google.png';
 import snapchat from '../../../assets/images/logos/snapchat.png';
@@ -23,6 +24,7 @@ import taboola from '../../../assets/images/logos/taboola.png';
 import outbrain from '../../../assets/images/logos/outbrain.png';
 import reglages from '../../../assets/images/logos/Réglages.png';
 import Table from './Tables/Table';
+
 const style = {
   position: 'absolute',
   top: '50%',
@@ -33,33 +35,41 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
-function AdPlateform_table() {
-  const [value, setValue] = React.useState('1');
+
+function AdPlateform_table({ selectedVerticalId, selectedDateFrom, selectedDateTo }) {
+  const [value, setValue] = useState('1');
+  const [open, setOpen] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState(null);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   const platforms = [
     { icon: facebook, label: 'Facebook', value: '1' },
     { icon: google, label: 'Google', value: '2' },
-    { icon: snapchat, label: 'Snapchat', value: '3' },
-    { icon: tiktok, label: 'Tiktok', value: '4' },
-    { icon: bing, label: 'Bing', value: '5' },
-    { icon: taboola, label: 'Taboola', value: '6' },
-    { icon: outbrain, label: 'Outbrain', value: '7' },
+    { icon: snapchat, label: 'Snapchat', value: '4' },
+    { icon: tiktok, label: 'Tiktok', value: '5' },
+    { icon: bing, label: 'Bing', value: '7' },
+    { icon: taboola, label: 'Taboola', value: '9' },
+    { icon: outbrain, label: 'Outbrain', value: '14' },
   ];
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  const [selectedOptions, setSelectedOptions] = React.useState(null);
-   // Options pour le Select avec des cases à cocher
-   const selectOptions = platforms.map((platform) => ({
+
+  // Options pour le Select avec des cases à cocher
+  const selectOptions = platforms.map((platform) => ({
     label: platform.label,
     value: platform.value,
   }));
+
+  // Filtrer les plateformes sélectionnées
+  const selectedPlatforms = platforms.filter((platform) =>
+    selectedOptions ? selectedOptions.some((option) => option.value === platform.value) : true
+  );
+
   return (
-    
     <DashboardCard sx={{ padding: '0px' }} title={`AD Platform`}>
       <Box sx={{ width: '100%', typography: 'body1' }}>
         <TabContext value={value}>
@@ -67,7 +77,7 @@ function AdPlateform_table() {
             <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
               <Box gridColumn="span 9">
                 <TabList onChange={handleChange} aria-label="lab API tabs example">
-                  {platforms.map((platform) => (
+                  {selectedPlatforms.map((platform) => (
                     <Tab
                       key={platform.value}
                       icon={
@@ -116,6 +126,9 @@ function AdPlateform_table() {
                   aria-describedby="modal-modal-description"
                 >
                   <Box sx={style}>
+                  <Box display="flex" justifyContent="flex-end" sx={{marginBottom:"8px"}}>
+                      <CloseIcon onClick={handleClose} />
+                    </Box>
                     <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
                       <Box display="grid" alignItems="center" gridColumn="span 4">
                         <Typography id="modal-modal-description" variant="h6" component="h2">
@@ -123,7 +136,7 @@ function AdPlateform_table() {
                         </Typography>
                       </Box>
                       <Box gridColumn="span 8">
-                      <Select
+                        <Select
                           className="basic-single"
                           classNamePrefix="select"
                           name="color"
@@ -133,7 +146,7 @@ function AdPlateform_table() {
                         />
                       </Box>
                     </Box>
-                    <Box
+                    {/*<Box
                       display="grid"
                       paddingTop="10px"
                       gridTemplateColumns="repeat(12, 1fr)"
@@ -149,7 +162,7 @@ function AdPlateform_table() {
                         <FormControlLabel control={<Checkbox />} label="Actif" />
                         <FormControlLabel control={<Checkbox />} label="Inactif" />
                       </Box>
-                    </Box>{' '}
+                    </Box>{' '}*/}
                     <Box display="flex" justifyContent="flex-end" marginTop={5}>
                       <Button variant="contained" color="success" onClick={handleClose}>
                         Sauvegarder
@@ -163,9 +176,12 @@ function AdPlateform_table() {
               </Box>
             </Box>
           </Box>
-          {platforms.map((platform) => (
+          {selectedPlatforms.map((platform) => (
             <TabPanel value={platform.value}>
-              <Table />
+              <Table selectedVerticalId={selectedVerticalId}
+                selectedDateFrom={selectedDateFrom}
+                selectedDateTo={selectedDateTo}
+                platformValue={platform.value}/>
             </TabPanel>
           ))}
         </TabContext>

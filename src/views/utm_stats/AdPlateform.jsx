@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
-import { Box } from '@mui/material';
+import { Tabs, Tab, Box } from '@mui/material';
 import Component from './Component';
 import './AdPlateform.css';
 import AdPlateform_table from './component_adPlateform/AdPlateformTable';
+import DashboardCard from 'src/components/shared/DashboardCard';
 
+function TabPanel({ children, value, index }) {
+  return <div hidden={value !== index}>{value === index && <div>{children}</div>}</div>;
+}
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
 function AdPlatform() {
   /* Begin: Date From */
   const [selectedDateFrom, setSelectedDateFrom] = useState(null);
@@ -29,7 +39,11 @@ function AdPlatform() {
   const handleVerticalSelectName = (verticalNames) => {
     setSelectedVerticals(verticalNames);
   };
+  const [tabValue, setTabValue] = useState(0);
 
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
   return (
     <Box sx={{ width: 1 }}>
       <Box display="grid" gridTemplateColumns="repeat(16, 1fr)" gap={2}>
@@ -42,12 +56,26 @@ function AdPlatform() {
           />
         </Box>
         <Box gridColumn="span 16">
+        <Tabs value={tabValue} onChange={handleTabChange} aria-label="vertical tabs example">
+          {selectedVerticals.map((verticalNames, index) => (
+            <Tab key={index} label={`${verticalNames}`} {...a11yProps(index)} />
+          ))}
+        </Tabs>
+        {selectedVerticalId && selectedVerticalId.length > 0 ? (
+         selectedVerticalId.map((verticalId, index) => (
+          <TabPanel key={index} value={tabValue} index={index}>
           <AdPlateform_table
-            selectedVerticalId={selectedVerticalId}
+            selectedVerticalId={verticalId}
             selectedDateFrom={selectedDateFrom}
             selectedDateTo={selectedDateTo}
             selectedVerticals={selectedVerticals}
           />
+          </TabPanel>
+        ))
+        ) : (
+            <DashboardCard sx={{ padding: '0px' }} title={`Ad Platform`}>
+            </DashboardCard>
+        )}
         </Box>
       </Box>
     </Box>

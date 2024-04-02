@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableHead,
@@ -9,20 +9,17 @@ import {
   Switch,
   Typography,
 } from '@mui/material';
+import { BASE_URL, api_version } from '../../../authentication/config';
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
 import RemoveCircleOutlinedIcon from '@mui/icons-material/RemoveCircleOutlined';
+import Swal from 'sweetalert2';
 import './table.css';
-function Campaign({ donnees }) {
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
 
-  const handleDetailsToggle = () => {
-    setIsDetailsOpen(!isDetailsOpen);
-  };
-
-  const handleDetailsExpandToggle = () => {
-    setIsOpen(!isOpen);
-  };
+function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platformValue }) {
+  const [tableData, setTableData] = useState([]);
+  const [tableDataAdset, setTableDataAdset] = useState([]);
+  const [tableDataAds, setTableDataAds] = useState([]);
+  const [error, setError] = useState(null);
 
   const renderTableCells = (cells) => {
     return cells.map((cell, index) => (
@@ -31,11 +28,112 @@ function Campaign({ donnees }) {
       </TableCell>
     ));
   };
+
   const formatCpl = (value) => {
     return parseFloat(value).toFixed(2);
   };
+
+  const getToken = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      return token;
+    } else {
+      throw new Error('No token available');
+    }
+  };
+
+  const fetchTableDataCampaign = async () => {
+    try {
+      const token = await getToken();
+      const accessToken = JSON.parse(token).access_token;
+      const formdata = new FormData();
+      formdata.append('Hipto-Authorization', accessToken);
+      const requestOptions = {
+        method: 'POST',
+        body: formdata,
+      };
+      const response = await fetch(
+        `${BASE_URL}/${api_version}/report/campaigns?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}&sn_id=${platformValue}`,
+        requestOptions,
+      );
+      const data = await response.json();
+      const newData = data.map((item) => ({ ...item, isDetailsOpen: false }));
+      setTableData(newData);
+    } catch (error) {
+      handleFetchError('Erreur lors de la récupération des données des campagnes !');
+    }
+  };
+
+  const fetchTableDataAdset = async (campaignId, adsAccountId) => {
+    try {
+      const token = await getToken();
+      const accessToken = JSON.parse(token).access_token;
+      const formdata = new FormData();
+      formdata.append('Hipto-Authorization', accessToken);
+      const requestOptions = {
+        method: 'POST',
+        body: formdata,
+      };
+      const response = await fetch(
+        `${BASE_URL}/${api_version}/report/adsets?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}&sn_id=${platformValue}&campaign_id=${campaignId}&ads_account_id=${adsAccountId}`,
+        requestOptions,
+      );
+      const data = await response.json();
+      const newData = data.map((item) => ({ ...item, isOpen: false }));
+      setTableDataAdset(newData);
+    } catch (error) {
+      handleFetchError('Erreur lors de la récupération des données des adsets !');
+    }
+  };
+
+  const fetchTableDataAds = async (adsetId,campaignId, adsAccountId) => {
+    try {
+      const token = await getToken();
+      const accessToken = JSON.parse(token).access_token;
+      const formdata = new FormData();
+      formdata.append('Hipto-Authorization', accessToken);
+      const requestOptions = {
+        method: 'POST',
+        body: formdata,
+      };
+      const response = await fetch(
+        `${BASE_URL}/${api_version}/report/ads?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}&sn_id=${platformValue}&adset_id=${adsetId}&campaign_id=${campaignId}&ads_account_id=${adsAccountId}`,
+        requestOptions,
+      );
+      const data = await response.json();
+      const newData = data.map((item) => ({ ...item }));
+      setTableDataAds(newData);
+    } catch (error) {
+      handleFetchError('Erreur lors de la récupération des données des annonces !');
+    }
+  };
+
+  const handleFetchError = (errorMessage) => {
+    Swal.fire({
+      icon: 'error',
+      text: errorMessage,
+      width: '30%',
+      confirmButtonText: "Ok, j'ai compris!",
+      confirmButtonColor: '#0095E8',
+    });
+  };
+
+  const handleTableCellClick = async (campaignId, adsAccountId) => {
+    fetchTableDataAdset(campaignId, adsAccountId);
+  };
+
+  const handleAdsetTableCellClick = async (adsetId,campaignId, adsAccountId) => {
+    fetchTableDataAds(adsetId,campaignId, adsAccountId);
+  };
+
+  useEffect(() => {
+    if (selectedVerticalId && selectedDateFrom && selectedDateTo && platformValue) {
+      fetchTableDataCampaign();
+    }
+  }, [selectedVerticalId, selectedDateFrom, selectedDateTo, platformValue]);
+
   return (
-    <Table sx={{ Padding: '0 px' }}>
+    <Table sx={{ padding: '0px' }}>
       <TableHead>
         <TableRow sx={{ backgroundColor: '#D44200' }}>
           {renderTableCells([
@@ -54,125 +152,154 @@ function Campaign({ donnees }) {
         </TableRow>
       </TableHead>
       <TableBody>
-            <TableRow  className={isDetailsOpen ? 'tableRowOpen' : ''}>
-              <TableCell>
-                {/* Utiliser un IconButton pour contrôler l'ouverture et la fermeture des détails */}
-                <IconButton onClick={() => setIsDetailsOpen(!isDetailsOpen)}>
-                  {isDetailsOpen ? <RemoveCircleOutlinedIcon style={{ color: '#ffffff' }} /> : <AddCircleOutlinedIcon style={{ color: '#D44200' }}/>}
+        {tableData.map((rowData, index) => (
+          <React.Fragment key={index}>
+            <TableRow className={rowData.isDetailsOpen ? 'tableRowOpen' : ''}>
+              <TableCell className="tab-button">
+                <IconButton
+                  onClick={() => {
+                    const newData = [...tableData];
+                    newData[index].isDetailsOpen = !newData[index].isDetailsOpen;
+                    setTableData(newData);
+                    handleTableCellClick(rowData.campaign_id, rowData.ads_account_id);
+                  }}
+                >
+                  {rowData.isDetailsOpen ? (
+                    <RemoveCircleOutlinedIcon style={{ color: '#ffffff' }} />
+                  ) : (
+                    <AddCircleOutlinedIcon style={{ color: '#D44200' }} />
+                  )}
                 </IconButton>
               </TableCell>
-              {/* Afficher les données de la première colonne */}
-              <TableCell sx={{ textAlign: 'center' }}>1</TableCell>
-              {/* Afficher les données de la deuxième colonne */}
+              <TableCell sx={{ textAlign: 'center' }}>{rowData.ads_account_name}</TableCell>
               <TableCell sx={{ textAlign: 'center' }}>
-                <Switch />
+                <Switch checked={rowData.status} />
               </TableCell>
-              {/* Afficher les autres colonnes de données */}
-              <TableCell sx={{ textAlign: 'center' }}>2</TableCell>
-              <TableCell sx={{ textAlign: 'center' }}>3</TableCell>
-              <TableCell sx={{ textAlign: 'center' }}>4</TableCell>
-              <TableCell sx={{ textAlign: 'center' }}>5</TableCell>
-              <TableCell sx={{ textAlign: 'center' }}>6</TableCell>
+              <TableCell sx={{ textAlign: 'center' }}>{rowData.campaign_id}</TableCell>
+              <TableCell sx={{ textAlign: 'center' }}>{rowData.campaign_name}</TableCell>
+              <TableCell sx={{ textAlign: 'center' }}>{rowData.leads}</TableCell>
+              <TableCell sx={{ textAlign: 'center' }}>{formatCpl(rowData.spend)} €</TableCell>
+              <TableCell sx={{ textAlign: 'center' }}>
+                <Typography className="badge">{formatCpl(rowData.cpl)} €</Typography>
+              </TableCell>
               <TableCell sx={{ textAlign: 'center' }}></TableCell>
               <TableCell sx={{ textAlign: 'center' }}></TableCell>
               <TableCell sx={{ textAlign: 'center' }}>-</TableCell>
             </TableRow>
-        {/* Afficher les détails si isDetailsOpen est true */}
-        {isDetailsOpen && (
-          <TableRow>
-            <TableCell colSpan={12}>
-              {/* Mettre les détails à afficher ici */}
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: '#168BC4' }}>
-                    {renderTableCells([
-                      '',
-                      'NAME ACCOUNT',
-                      'ON/OFF',
-                      'ID',
-                      'ADSET',
-                      'LEAD',
-                      'DEPENSES',
-                      'CPL',
-                      'CTR',
-                      'CPM',
-                      'TC',
-                    ])}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow className={isOpen ? 'tableRowOpen2' : ''}>
-                    <TableCell>
-                      {/* Utiliser un IconButton pour contrôler l'ouverture et la fermeture des détails */}
-                      <IconButton onClick={() => setIsOpen(!isOpen)}>
-                        {isOpen ? <RemoveCircleOutlinedIcon style={{ color: '#ffffff' }} /> : <AddCircleOutlinedIcon style={{ color: '#168BC4' }}/>}
-                      </IconButton>
-                    </TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>FIB_1</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>
-                      <Switch />
-                    </TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>200</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>14e-FOMO3-CC-LANDBOT</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>80</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>16</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>20</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>1</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>2</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>20</TableCell>
-                  </TableRow>
-                  {isOpen && (
-                    <TableRow>
-                      <TableCell colSpan={12}>
-                        {/* Mettre les détails à afficher ici */}
-                        <Table>
-                          <TableHead>
-                            <TableRow sx={{ backgroundColor: '#E7A33D' }}>
-                              {renderTableCells([
-                                '',
-                                'NAME ACCOUNT',
-                                'ON/OFF',
-                                'ID',
-                                'AD',
-                                'LEAD',
-                                'DEPENSES',
-                                'CPL',
-                                'CTR',
-                                'CPM',
-                                'TC',
-                              ])}
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            <TableRow sx={{ backgroundColor: '#E7A33D29' }}>
-                              <TableCell></TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>FIB_1</TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>
-                                <Switch />
+            {rowData.isDetailsOpen && (
+              <TableRow>
+                <TableCell colSpan={12}>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: '#168BC4' }}>
+                        {renderTableCells([
+                          '',
+                          'NAME ACCOUNT',
+                          'ON/OFF',
+                          'ID',
+                          'ADSET',
+                          'LEAD',
+                          'DEPENSES',
+                          'CPL',
+                          'CTR',
+                          'CPM',
+                          'TC',
+                        ])}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {tableDataAdset.map((rowDataAdset, index) => (
+                        <React.Fragment key={index}>
+                          <TableRow className={rowDataAdset.isOpen ? 'tableRowOpen2' : ''}>
+                            <TableCell className="tab-button">
+                              <IconButton
+                                onClick={() => {
+                                  const newData = [...tableDataAdset];
+                                  newData[index].isOpen = !newData[index].isOpen;
+                                  setTableDataAdset(newData);
+                                  handleAdsetTableCellClick(rowDataAdset.adset_id,rowData.campaign_id, rowData.ads_account_id);
+                                }}
+                              >
+                                {rowDataAdset.isOpen ? (
+                                  <RemoveCircleOutlinedIcon style={{ color: '#ffffff' }} />
+                                ) : (
+                                  <AddCircleOutlinedIcon style={{ color: '#168BC4' }} />
+                                )}
+                              </IconButton>
+                            </TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>{rowData.ads_account_name}</TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>
+                              <Switch checked={rowDataAdset.status} />
+                            </TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>{rowDataAdset.adset_id}</TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>{rowDataAdset.adset_name}</TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>{rowDataAdset.leads}</TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>{formatCpl(rowDataAdset.spend)} €</TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>
+                              <Typography className="badge">{formatCpl(rowDataAdset.cpl)} €</Typography>
+                            </TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                            <TableCell sx={{ textAlign: 'center' }}>-</TableCell>
+                          </TableRow>
+                          {rowDataAdset.isOpen && (
+                            <TableRow>
+                              <TableCell colSpan={12}>
+                                <Table>
+                                  <TableHead>
+                                    <TableRow sx={{ backgroundColor: '#E7A33D' }}>
+                                      {renderTableCells([
+                                        '',
+                                        'NAME ACCOUNT',
+                                        'ON/OFF',
+                                        'ID',
+                                        'AD',
+                                        'LEAD',
+                                        'DEPENSES',
+                                        'CPL',
+                                        'CTR',
+                                        'CPM',
+                                        'TC',
+                                      ])}
+                                    </TableRow>
+                                  </TableHead>
+                                  <TableBody>
+                                    {tableDataAds.map((rowDataAds, index) => (
+                                      <TableRow key={index} className={rowDataAdset.isOpen ? 'tableRowOpen3' : ''}>
+                                        <TableCell className="tab-button"></TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>{rowData.ads_account_name}</TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>
+                                          <Switch checked={rowDataAds.status} />
+                                        </TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>{rowDataAds.ad_id}</TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>{rowDataAds.ad_name}</TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>{rowDataAds.leads}</TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>{formatCpl(rowDataAds.spend)} €</TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>
+                                          <Typography className="badge">{formatCpl(rowDataAds.cpl)} €</Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                                        <TableCell sx={{ textAlign: 'center' }}>-</TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
                               </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>200</TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>
-                                14e-FOMO3-CC-LANDBOT
-                              </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>80</TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>16</TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>20</TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>1</TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>2</TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>20</TableCell>
                             </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableCell>
-          </TableRow>
-        )}
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableCell>
+              </TableRow>
+            )}
+          </React.Fragment>
+        ))}
       </TableBody>
     </Table>
   );
 }
+
 export default Campaign;

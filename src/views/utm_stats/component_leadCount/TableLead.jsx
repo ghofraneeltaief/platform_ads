@@ -139,7 +139,7 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
 
     return (
       <TableRow key={platform.name}>
-        <TableCell component="th" scope="row">
+        <TableCell component="th" scope="row" className='td_channel'>
           {' '}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <img
@@ -183,7 +183,7 @@ function TableLead({ selectedVerticalId, selectedDateFrom, selectedDateTo, onDat
             <TableBody>
               {TableDataCanal.map((row, index) => (
                 <TableRow key={index}>
-                  <TableCell>
+                  <TableCell className='td_channel'>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <img src={row.channel_logo} style={{ width: '35px', marginRight: '10px' }} />
                       {row.channel_name}

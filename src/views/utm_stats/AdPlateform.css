@@ -21,13 +21,7 @@
   height: 55px;
 }
 
-.css-g0jugy-MuiCollapse-root-MuiTreeItem-group {
-  margin-left: 0px !important;
-}
+.css-118wnfb-MuiTableCell-root {
+  padding: 10px !important;
 
-.MuiTableCell-root .MuiTableCell-body{
-  padding: 0px !important;
-}
-.css-q4qtnq-MuiTableCell-root {
-  padding: 0px !important;
 }
