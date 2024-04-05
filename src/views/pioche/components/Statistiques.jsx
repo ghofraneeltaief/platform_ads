@@ -5,7 +5,9 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { BASE_URL, api_version } from '../../authentication/config';
 
-function Statistiques({ CanalCount, SourceCount }) {
+function Statistiques({ CanalCount, SourceCount,selectedVerticalId,
+  selectedDateFrom,
+  selectedDateTo, }) {
   async function getToken() {
     const token = localStorage.getItem('token');
     if (token) {
@@ -56,7 +58,38 @@ function Statistiques({ CanalCount, SourceCount }) {
 
     fetchLogos();
   }, []);
+  const [leadsTestByChannel, setLeadsTestByChannel] = useState({});
 
+  useEffect(() => {
+    if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
+    const fetchLeadsTestByChannel = async () => {
+      try {
+        const token = await getToken();
+        const responseObject = JSON.parse(token);
+        const accessToken = responseObject.access_token;
+        const formdata = new FormData();
+        formdata.append('Hipto-Authorization', accessToken);
+        const requestOptions = {
+          method: 'POST',
+          body: formdata,
+        };
+        const response = await fetch(`${BASE_URL}/${api_version}/report/channels?from=${selectedDateFrom}&to=${selectedDateTo}&vertical_id=${selectedVerticalId}`, requestOptions);
+        const data = await response.json();
+        const channelsLeads = {};
+data.forEach(item => {
+    const channelName = item.channel_name.toLowerCase();
+    channelsLeads[channelName] = item.leads_test;
+});
+        setLeadsTestByChannel(channelsLeads);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchLeadsTestByChannel();
+  }
+}, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
+console.log(leadsTestByChannel);
   return (
     <DashboardCard title="Statistiques">
       <Box pb={4}>
@@ -73,8 +106,9 @@ function Statistiques({ CanalCount, SourceCount }) {
                       <img src={LogoChannels[canal.toLowerCase()]} alt='' width={25} />
                       <Typography pl={1} variant="h9">{canal}</Typography>
                     </Grid>
-                    <Grid item xs={12} lg={6} sx={{ textAlign: 'end' }}>
+                    <Grid item xs={12} lg={6} sx={{ textAlign: 'end' }} > 
                       <Typography variant="h9">{CanalCount[canal]}</Typography>
+                      <Typography key={index} variant="h9">({leadsTestByChannel[canal] !== undefined ? leadsTestByChannel[canal] : 0})</Typography>
                     </Grid>
                   </React.Fragment>
                 ))}

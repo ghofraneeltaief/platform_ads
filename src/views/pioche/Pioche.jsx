@@ -82,8 +82,7 @@ function Pioche() {
   /* Begin: Fonction pour réinitialiser les données du tableau et statistiques */
   const [tableDataVide] = useState([]);
 
-  const handleRecalculateClick = () => {
-  };
+  const handleRecalculateClick = () => {};
 
   return (
     <Box sx={{ width: 1 }}>
@@ -97,7 +96,13 @@ function Pioche() {
           />
         </Box>
         <Box gridColumn="span 8">
-          <Statistique CanalCount={CanalCount} SourceCount={SourceCount} />
+          <Statistique
+            CanalCount={CanalCount}
+            SourceCount={SourceCount}
+            selectedVerticalId={selectedVerticalId}
+            selectedDateFrom={selectedDateFrom}
+            selectedDateTo={selectedDateTo}
+          />
         </Box>
         <Box gridColumn="span 12">
           <Leads

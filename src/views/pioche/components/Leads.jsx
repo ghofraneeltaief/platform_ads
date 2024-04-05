@@ -89,6 +89,15 @@ function Leads({
       );
       const data = await response.json();
       setTableData(data);
+      const countsSource = {};
+      const counts = {};
+      data.forEach((item) => {
+        const source = item.utm_source || 'Unorganized';
+        countsSource[source] = (countsSource[source] || 0) + 1;
+        counts[item.canal] = (counts[item.canal] || 0) + 1;
+      });
+      onSourceCount(countsSource);
+      onCanalCount(counts);
     } catch (error) {
       handleFetchError('Erreur lors de la récupération des données !');
     } finally {
