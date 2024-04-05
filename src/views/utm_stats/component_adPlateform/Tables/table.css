@@ -13,11 +13,8 @@
     background-color: #F8E4C6  !important; /* Choisissez la couleur bleue que vous préférez */
     color: white !important; /* Pour assurer que le texte est lisible sur le fond bleu */
   }
-  .css-e8kpoj-MuiTableCell-root{
+  .td_table_platform{
     padding: 0px  !important;
-  }
-  .tab-button{
-    border-bottom: 0px solid rgb(195, 195, 195) !important;
   }
   .css-q4qtnq-MuiTableCell-root {
     padding: 14px !important;

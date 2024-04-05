@@ -18,4 +18,6 @@
     background-color: #DC67AB; /* Ajoutez ici la couleur de fond souhaitée pour les en-têtes */
     color: white; /* Couleur du texte */
   }
-  
+  .table_lead_td{
+    padding: 16px !important;
+  }
