@@ -25,6 +25,7 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
   const [isLoadingAdset, setIsLoadingAdset] = useState(false);
   const [isLoadingAds, setIsLoadingAds] = useState(false);
   const [isLoadingKeyword, setIsLoadingKeyword] = useState(false);
+  const [campaignAdsetData, setCampaignAdsetData] = useState({});
 
   const renderTableCells = (cells) => {
     return cells.map((cell, index) => (
@@ -77,12 +78,33 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
 
   const handleTableCellClick = async (campaignId, adsAccountId) => {
     setIsLoadingAdset(true);
-    fetchTableData(
-      `${BASE_URL}/${api_version}/report/adsets?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}&sn_id=${platformValue}&campaign_id=${campaignId}&ads_account_id=${adsAccountId}`,
-      setTableDataAdset,
-    ).finally(() => setIsLoadingAdset(false));
+    const adsetData = await fetchAdsetData(campaignId, adsAccountId);
+    setCampaignAdsetData({ ...campaignAdsetData, [campaignId]: adsetData });
+    setTableDataAdset(adsetData);
+    setIsLoadingAdset(false);
   };
 
+  const fetchAdsetData = async (campaignId, adsAccountId) => {
+    try {
+      const token = await getToken();
+      const accessToken = JSON.parse(token).access_token;
+      const formdata = new FormData();
+      formdata.append('Hipto-Authorization', accessToken);
+      const requestOptions = {
+        method: 'POST',
+        body: formdata,
+      };
+      const response = await fetch(
+        `${BASE_URL}/${api_version}/report/adsets?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}&sn_id=${platformValue}&campaign_id=${campaignId}&ads_account_id=${adsAccountId}`,
+        requestOptions,
+      );
+      const data = await response.json();
+      return data.map((item) => ({ ...item }));
+    } catch (error) {
+      handleFetchError("Erreur lors de la récupération des données d'adset !");
+      return [];
+    }
+  };
   const handleAdsetTableCellClick = async (adsetId, campaignId, adsAccountId) => {
     setIsLoadingAds(true);
     fetchTableData(
@@ -180,7 +202,7 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
               </TableRow>
               {rowData.isDetailsOpen && (
                 <TableRow>
-                  <TableCell colSpan={12} className='td_table_platform'>
+                  <TableCell colSpan={12} className="td_table_platform">
                     <Table>
                       <TableHead>
                         <TableRow sx={{ backgroundColor: '#168BC4' }}>
@@ -208,220 +230,233 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
                             </TableCell>
                           </TableRow>
                         )}
-                        {/* Si tableDataAdset est vide, afficher un message */}
+                        {/* Si tableDataAdset est vide, afficher un message 11*/}
                         {tableDataAdset.length === 0 && !isLoadingAdset && (
                           <TableRow>
                             <TableCell colSpan={11} align="center">
-                              Aucune information n'est disponible.
+                              Aucune information n'est disponible c'est est ub boucle il y a l'erreu
+                              .
                             </TableCell>
                           </TableRow>
                         )}
                         {/* Sinon, afficher les données */}
-                        {!isLoadingAdset && tableDataAdset.map((rowDataAdset, index) => (
-                          <React.Fragment key={index}>
-                            <TableRow className={rowDataAdset.isOpen ? 'tableRowOpen2' : ''}>
-                              <TableCell className="tab-button">
-                                <IconButton
-                                  onClick={() => {
-                                    const newData = [...tableDataAdset];
-                                    newData[index].isOpen = !newData[index].isOpen;
-                                    setTableDataAdset(newData);
-                                    handleAdsetTableCellClick(
-                                      rowDataAdset.adset_id,
-                                      rowData.campaign_id,
-                                      rowData.ads_account_id,
-                                    );
-                                  }}
-                                >
-                                  {rowDataAdset.isOpen ? (
-                                    <RemoveCircleOutlinedIcon style={{ color: '#ffffff' }} />
-                                  ) : (
-                                    <AddCircleOutlinedIcon style={{ color: '#168BC4' }} />
-                                  )}
-                                </IconButton>
-                              </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>
-                                {rowData.ads_account_name}
-                              </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>
-                                <Switch checked={rowDataAdset.status} />
-                              </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>
-                                {rowDataAdset.adset_id}
-                              </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>
-                                {rowDataAdset.adset_name}
-                              </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>
-                                {rowDataAdset.leads}
-                              </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>
-                                {formatCpl(rowDataAdset.spend)} €
-                              </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>
-                                <Typography className="badge">
-                                  {formatCpl(rowDataAdset.cpl)} €
-                                </Typography>
-                              </TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                              <TableCell sx={{ textAlign: 'center' }}>-</TableCell>
-                            </TableRow>
-                            {rowDataAdset.isOpen && (
-                              <TableRow>
-                                <TableCell colSpan={12} className='td_table_platform'>
-                                  {platformValue === 2 || platformValue === 7 ? (
-                                    <Table>
-                                      <TableHead>
-                                        <TableRow sx={{ backgroundColor: '#E7A33D' }}>
-                                          {renderTableCells([
-                                            '',
-                                            'NAME ACCOUNT',
-                                            'ON/OFF',
-                                            'ID',
-                                            'AD',
-                                            'LEAD',
-                                            'DEPENSES',
-                                            'CPL',
-                                            'CTR',
-                                            'CPM',
-                                            'TC',
-                                          ])}
-                                        </TableRow>
-                                      </TableHead>
-                                      <TableBody>
-                                        {/* Si isLoading est vrai, afficher l'indicateur de chargement */}
-                                        {isLoadingAds && (
-                                          <TableRow>
-                                            <TableCell colSpan={11} align="center">
-                                              <CircularProgress />
-                                            </TableCell>
-                                          </TableRow>
-                                        )}
-                                        {/* Si tableDataAds est vide, afficher un message */}
-                                        {tableDataAds.length === 0 && !isLoadingAds && (
-                                          <TableRow>
-                                            <TableCell colSpan={11} align="center">
-                                              Aucune information n'est disponible.
-                                            </TableCell>
-                                          </TableRow>
-                                        )}
-                                        {/* Sinon, afficher les données */}
-                                        {!isLoadingAds && tableDataAds.map((rowDataAds, index) => (
-                                          <TableRow
-                                            key={index}
-                                            className={rowDataAdset.isOpen ? 'tableRowOpen3' : ''}
-                                          >
-                                            <TableCell className="tab-button"></TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {rowData.ads_account_name}
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              <Switch checked={rowDataAds.status} />
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {rowDataAds.ad_id}
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {rowDataAds.ad_name}
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {rowDataAds.leads}
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {formatCpl(rowDataAds.spend)} €
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              <Typography className="badge">
-                                                {formatCpl(rowDataAds.cpl)} €
-                                              </Typography>
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>-</TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  ) : (
-                                    <Table>
-                                      <TableHead>
-                                        <TableRow sx={{ backgroundColor: '#E7A33D' }}>
-                                          {renderTableCells([
-                                            '',
-                                            'NAME ACCOUNT',
-                                            'ON/OFF',
-                                            'ID',
-                                            'KEYWORDS',
-                                            'LEAD',
-                                            'DEPENSES',
-                                            'CPL',
-                                            'CTR',
-                                            'CPM',
-                                            'TC',
-                                          ])}
-                                        </TableRow>
-                                      </TableHead>
-                                      <TableBody>
-                                        {/* Si isLoading est vrai, afficher l'indicateur de chargement */}
-                                        {isLoadingKeyword && (
-                                          <TableRow>
-                                            <TableCell colSpan={11} align="center">
-                                              <CircularProgress />
-                                            </TableCell>
-                                          </TableRow>
-                                        )}
-                                        {/* Si tableDataKeyword est vide, afficher un message */}
-                                        {tableDataKeyword.length === 0 && !isLoadingKeyword && (
-                                          <TableRow>
-                                            <TableCell colSpan={11} align="center">
-                                              Aucune information n'est disponible.
-                                            </TableCell>
-                                          </TableRow>
-                                        )}
-                                        {/* Sinon, afficher les données */}
-                                        {!isLoadingKeyword && tableDataKeyword.map((rowDataKeyword, index) => (
-                                          <TableRow
-                                            key={index}
-                                            className={rowDataAdset.isOpen ? 'tableRowOpen3' : ''}
-                                          >
-                                            <TableCell className="tab-button"></TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {rowData.ads_account_name}
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              <Switch checked={rowDataKeyword.status} />
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {rowDataKeyword.keyword_id}
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {rowDataKeyword.keyword_name}
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {rowDataKeyword.leads}
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              {formatCpl(rowDataKeyword.spend)} €
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>
-                                              <Typography className="badge">
-                                                {formatCpl(rowDataKeyword.cpl)} €
-                                              </Typography>
-                                            </TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                                            <TableCell sx={{ textAlign: 'center' }}>-</TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  )}
+                        {!isLoadingAdset &&
+                          campaignAdsetData[rowData.campaign_id] &&
+                          campaignAdsetData[rowData.campaign_id].map((rowDataAdset, index) => (
+                            <React.Fragment key={index}>
+                              <TableRow className={rowDataAdset.isOpen ? 'tableRowOpen2' : ''}>
+                                <TableCell className="tab-button">
+                                  <IconButton
+                                    onClick={() => {
+                                      const newData = [...tableDataAdset];
+                                      newData[index].isOpen = !newData[index].isOpen;
+                                      setTableDataAdset(newData);
+                                      handleAdsetTableCellClick(
+                                        rowDataAdset.adset_id,
+                                        rowData.campaign_id,
+                                        rowData.ads_account_id,
+                                      );
+                                    }}
+                                  >
+                                    {rowDataAdset.isOpen ? (
+                                      <RemoveCircleOutlinedIcon style={{ color: '#ffffff' }} />
+                                    ) : (
+                                      <AddCircleOutlinedIcon style={{ color: '#168BC4' }} />
+                                    )}
+                                  </IconButton>
                                 </TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}>
+                                  {rowData.ads_account_name}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}>
+                                  <Switch checked={rowDataAdset.status} />
+                                </TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}>
+                                  {rowDataAdset.adset_id}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}>
+                                  {rowDataAdset.adset_name}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}>
+                                  {rowDataAdset.leads}
+                                </TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}>
+                                  {formatCpl(rowDataAdset.spend)} €
+                                </TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}>
+                                  <Typography className="badge">
+                                    {formatCpl(rowDataAdset.cpl)} €
+                                  </Typography>
+                                </TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                                <TableCell sx={{ textAlign: 'center' }}>-</TableCell>
                               </TableRow>
-                            )}
-                          </React.Fragment>
-                        ))}
+                              {rowDataAdset.isOpen && (
+                                <TableRow>
+                                  <TableCell colSpan={12} className="td_table_platform">
+                                    {platformValue == 2 || platformValue == 7 ? (
+                                      <Table>
+                                        <TableHead>
+                                          <TableRow sx={{ backgroundColor: '#E7A33D' }}>
+                                            {renderTableCells([
+                                              '',
+                                              'NAME ACCOUNT',
+                                              'ON/OFF',
+                                              'ID',
+                                              'KEYWORDS',
+                                              'LEAD',
+                                              'DEPENSES',
+                                              'CPL',
+                                              'CTR',
+                                              'CPM',
+                                              'TC',
+                                            ])}
+                                          </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                          {/* Si isLoading est vrai, afficher l'indicateur de chargement */}
+                                          {isLoadingKeyword && (
+                                            <TableRow>
+                                              <TableCell colSpan={11} align="center">
+                                                <CircularProgress />
+                                              </TableCell>
+                                            </TableRow>
+                                          )}
+                                          {/* Si tableDataKeyword est vide, afficher un message */}
+                                          {tableDataKeyword.length === 0 && !isLoadingKeyword && (
+                                            <TableRow>
+                                              <TableCell colSpan={11} align="center">
+                                                Aucune information n'est disponible.
+                                              </TableCell>
+                                            </TableRow>
+                                          )}
+                                          {/* Sinon, afficher les données */}
+                                          {!isLoadingKeyword &&
+                                            tableDataKeyword.map((rowDataKeyword, index) => (
+                                              <TableRow
+                                                key={index}
+                                                className={
+                                                  rowDataAdset.isOpen ? 'tableRowOpen3' : ''
+                                                }
+                                              >
+                                                <TableCell className="tab-button"></TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {rowData.ads_account_name}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  <Switch checked={rowDataKeyword.status} />
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {rowDataKeyword.keyword_id}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {rowDataKeyword.keyword_name}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {rowDataKeyword.leads}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {formatCpl(rowDataKeyword.spend)} €
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  <Typography className="badge">
+                                                    {formatCpl(rowDataKeyword.cpl)} €
+                                                  </Typography>
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  -
+                                                </TableCell>
+                                              </TableRow>
+                                            ))}
+                                        </TableBody>
+                                      </Table>
+                                    ) : (
+                                      <Table>
+                                        <TableHead>
+                                          <TableRow sx={{ backgroundColor: '#E7A33D' }}>
+                                            {renderTableCells([
+                                              '',
+                                              'NAME ACCOUNT',
+                                              'ON/OFF',
+                                              'ID',
+                                              'AD',
+                                              'LEAD',
+                                              'DEPENSES',
+                                              'CPL',
+                                              'CTR',
+                                              'CPM',
+                                              'TC',
+                                            ])}
+                                          </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                          {/* Si isLoading est vrai, afficher l'indicateur de chargement */}
+                                          {isLoadingAds && (
+                                            <TableRow>
+                                              <TableCell colSpan={11} align="center">
+                                                <CircularProgress />
+                                              </TableCell>
+                                            </TableRow>
+                                          )}
+                                          {/* Si tableDataAds est vide, afficher un message */}
+                                          {tableDataAds.length === 0 && !isLoadingAds && (
+                                            <TableRow>
+                                              <TableCell colSpan={11} align="center">
+                                                Aucune information n'est disponible.
+                                              </TableCell>
+                                            </TableRow>
+                                          )}
+                                          {/* Sinon, afficher les données */}
+                                          {!isLoadingAds &&
+                                            tableDataAds.map((rowDataAds, index) => (
+                                              <TableRow
+                                                key={index}
+                                                className={
+                                                  rowDataAdset.isOpen ? 'tableRowOpen3' : ''
+                                                }
+                                              >
+                                                <TableCell className="tab-button"></TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {rowData.ads_account_name}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  <Switch checked={rowDataAds.status} />
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {rowDataAds.ad_id}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {rowDataAds.ad_name}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {rowDataAds.leads}
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  {formatCpl(rowDataAds.spend)} €
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  <Typography className="badge">
+                                                    {formatCpl(rowDataAds.cpl)} €
+                                                  </Typography>
+                                                </TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
+                                                <TableCell sx={{ textAlign: 'center' }}>
+                                                  -
+                                                </TableCell>
+                                              </TableRow>
+                                            ))}
+                                        </TableBody>
+                                      </Table>
+                                    )}
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </React.Fragment>
+                          ))}
                       </TableBody>
                     </Table>
                   </TableCell>

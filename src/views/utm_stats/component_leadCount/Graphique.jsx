@@ -181,8 +181,8 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
           <Box sx={{ marginTop: '10px' }}>
             <DashboardCard title="Leads S-1" backgroundColor={'#0DBDE7'} color={'white'}>
               <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={5}>
-                {renderLeads(LeadsCollectes, 'circle1')}
-                {renderLeads(LeadsLivres, 'circle2')}
+                {renderLeads_2(LeadsCollectes, 'circle1')}
+                {renderLeads_2(LeadsLivres, 'circle2')}
               </Box>
             </DashboardCard>
           </Box>
@@ -213,5 +213,25 @@ function renderLeads(Leads, circleClass) {
     </Box>
   );
 }
-
+function renderLeads_2(Leads, circleClass) {
+  return Leads && Leads.length > 0 ? (
+    Leads.map((row, index) => (
+      <Box gridColumn="span 5" key={index}>
+        <Typography className={circleClass}>{row.yesterweek}</Typography>
+        <Typography sx={{ paddingTop: '10px' }}>{row.yesterweek_perc}%</Typography>
+        <Typography variant="h7">
+          {circleClass === 'circle1' ? 'Leads Collectés' : 'Leads Livrés'}
+        </Typography>
+      </Box>
+    ))
+  ) : (
+    <Box gridColumn="span 5">
+      <Typography className={circleClass}>0</Typography>
+      <Typography sx={{ paddingTop: '10px' }}>0 %</Typography>
+      <Typography variant="h7">
+        {circleClass === 'circle1' ? 'Leads Collectés' : 'Leads Livrés'}
+      </Typography>
+    </Box>
+  );
+}
 export default Graphique;

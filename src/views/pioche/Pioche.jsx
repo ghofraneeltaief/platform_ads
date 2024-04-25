@@ -67,6 +67,18 @@ function Pioche() {
     setSelectedDateTo(dateTo);
   };
   /* End: Date To */
+   /* Begin: Time From */
+   const [selectedTimeFrom, setSelectedTimeFrom] = useState(null);
+   const handleTimeFromSelect = (TimeFrom) => {
+     setSelectedTimeFrom(TimeFrom);
+   };
+   /* End: Time From */
+    /* Begin: Time To */
+  const [selectedTimeTo, setSelectedTimeTo] = useState(null);
+  const handleTimeToSelect = (TimeTo) => {
+    setSelectedTimeTo(TimeTo);
+  };
+  /* End: Time To */
   /* Begin: Canal Count */
   const [CanalCount, setCanalCount] = useState(''); // Initialiser l'état avec l'ID vertical de l'URL
   const handleCanalCount = (CanalCount) => {
@@ -92,6 +104,8 @@ function Pioche() {
             onVerticalSelect={handleVerticalSelect}
             onDateFromSelect={handleDateFromSelect}
             onDateToSelect={handleDateToSelect}
+            onTimeFromSelect={handleTimeFromSelect}
+            onTimeToSelect={handleTimeToSelect}
             onRecalculateClick={handleRecalculateClick}
           />
         </Box>
@@ -109,6 +123,8 @@ function Pioche() {
             selectedVerticalId={selectedVerticalId}
             selectedDateFrom={selectedDateFrom}
             selectedDateTo={selectedDateTo}
+            selectedTimeFrom={selectedTimeFrom}
+            selectedTimeTo={selectedTimeTo}
             onCanalCount={handleCanalCount}
             onSourceCount={handleSourceCount}
             tableDataVide={tableDataVide}

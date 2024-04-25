@@ -22,8 +22,8 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
   const [sources, setSources] = useState([]);
   const [selectedDateFrom, setSelectedDateFrom] = useState(new Date().toISOString().substr(0, 10));
   const [selectedDateTo, setSelectedDateTo] = useState(new Date().toISOString().substr(0, 10));
-  const [selectedTimeFrom, setSelectedTimeFrom] = useState('08:00');
-  const [selectedTimeTo, setSelectedTimeTo] = useState('17:00');
+  const [selectedTimeFrom, setSelectedTimeFrom] = useState('08:00:01');
+  const [selectedTimeTo, setSelectedTimeTo] = useState('23:59:59');
   const [selectedVertical, setSelectedVertical] = useState(null); // Nouvelle variable d'état
 
   const formdata = new FormData();
@@ -105,6 +105,8 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
     try {
       onDateFromSelect(selectedDateFrom);
       onDateToSelect(selectedDateTo);
+      onTimeFromSelect(selectedTimeFrom);
+      onTimeToSelect(selectedTimeTo);
       if (onRecalculateClick) {
         onRecalculateClick();
       }
@@ -159,7 +161,7 @@ function Selection({ onVerticalSelect, onDateFromSelect, onDateToSelect, onRecal
       <Typography variant="h6" sx={{ fontWeight: '400' }} mb={1}>
         Heure
       </Typography>
-      <Grid container spacing={2}>
+      <Grid container spacing={0.25}>
         <Grid item xs={6}>
           <Typography variant="p" sx={{ fontWeight: '400' }} mb={1}>
             De :

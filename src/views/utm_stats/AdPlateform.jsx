@@ -56,11 +56,13 @@ function AdPlatform() {
           />
         </Box>
         <Box gridColumn="span 16">
-        <Tabs value={tabValue} onChange={handleTabChange} aria-label="vertical tabs example">
-          {selectedVerticals.map((verticalNames, index) => (
-            <Tab key={index} label={`${verticalNames}`} {...a11yProps(index)} />
-          ))}
-        </Tabs>
+        {selectedVerticalId && selectedVerticals.length > 0 && (
+    <Tabs value={tabValue} onChange={handleTabChange} aria-label="vertical tabs example">
+    {selectedVerticals.map((verticalId, index) => (
+      <Tab key={index} label={`${verticalId}`} {...a11yProps(index)} />
+    ))}
+  </Tabs>
+  )}
         {selectedVerticalId && selectedVerticalId.length > 0 ? (
          selectedVerticalId.map((verticalId, index) => (
           <TabPanel key={index} value={tabValue} index={index}>
