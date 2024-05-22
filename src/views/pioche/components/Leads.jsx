@@ -245,6 +245,7 @@ const handleCheckboxChange = (event, value) => {
   }, [tableHeaders, tableData]);
 
   const applyFilters = () => {
+    handleCloseMenu();
     setAppliedFilters(selectedFilters);
     setFilterPanelOpen(false); // Fermer le panneau de filtre après application des filtres
   };
