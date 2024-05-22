@@ -6,7 +6,6 @@ import DashboardCard from 'src/components/shared/DashboardCard';
 import { BASE_URL, api_version } from '../../authentication/config';
 import Swal from 'sweetalert2';
 import './graphique.css';
-
 const chartSetting = {
   width: 500,
   height: 330,
@@ -16,7 +15,6 @@ const chartSetting = {
     },
   },
 };
-
 async function fetchData(url, token) {
   const formdata = new FormData();
   formdata.append('Hipto-Authorization', token);
@@ -28,14 +26,12 @@ async function fetchData(url, token) {
   const responseData = await response.json();
   return Array.isArray(responseData) ? responseData : [responseData];
 }
-
 function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donnees }) {
   const [error, setError] = useState(null);
   const [LeadsCollectes, setLeadsCollectes] = useState([]);
   const [LeadsLivres, setLeadsLivres] = useState([]);
   const [chartDataIncoming, setChartDataIncoming] = useState([]);
   const [chartDataOutgoing, setChartDataOutgoing] = useState([]);
-
   useEffect(() => {
     async function fetchDataForLeads(url, setStateFunction) {
       try {
@@ -49,7 +45,6 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
         handleError(error);
       }
     }
-
     if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
       fetchDataForLeads(
         `/leads/incoming/compareHourlyPerformance?vertical_id=${selectedVerticalId}`,
@@ -61,7 +56,6 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
       );
     }
   }, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
-
   useEffect(() => {
     async function fetchDataForCharts(url, setStateFunction) {
       try {
@@ -75,7 +69,6 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
         handleError(error);
       }
     }
-
     if (selectedVerticalId && selectedDateFrom && selectedDateTo) {
       fetchDataForCharts(
         `/leads/incoming/hours?from=${selectedDateFrom}&to=${selectedDateTo}&vertical_id=${selectedVerticalId}`,
@@ -87,7 +80,6 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
       );
     }
   }, [selectedVerticalId, selectedDateFrom, selectedDateTo]);
-
   const handleError = (error) => {
     Swal.fire({
       icon: 'error',
@@ -98,7 +90,6 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
     });
     setError('Erreur lors de la récupération des données sdghrhd.');
   };
-
   const combinedChartData = chartDataIncoming.map((incomingItem) => {
     const outgoingItem = chartDataOutgoing.find(
       (outgoingItem) => outgoingItem.hour === incomingItem.hour,
@@ -109,7 +100,6 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
       outgoing: outgoingItem ? outgoingItem.count : 0,
     };
   });
-
   return (
     <Box sx={{ width: 1 }}>
       <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
@@ -170,7 +160,6 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
             </Box>
           </DashboardCard>
         </Box>
-
         <Box gridColumn="span 4">
           <DashboardCard title="Leads J-1" backgroundColor={'#080655'} color={'white'}>
             <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={5}>
@@ -191,7 +180,6 @@ function Graphique({ selectedVerticalId, selectedDateFrom, selectedDateTo, donne
     </Box>
   );
 }
-
 function renderLeads(Leads, circleClass) {
   return Leads && Leads.length > 0 ? (
     Leads.map((row, index) => (

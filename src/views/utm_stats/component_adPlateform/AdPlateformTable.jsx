@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -10,6 +10,8 @@ import TabPanel from '@mui/lab/TabPanel';
 import DashboardCard from 'src/components/shared/DashboardCard';
 import TextField from '@mui/material/TextField';
 import Select from 'react-select';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import CloseIcon from '@mui/icons-material/Close';
 
 // Importez logos
@@ -39,25 +41,12 @@ function AdPlateform_table({ selectedVerticalId, selectedDateFrom, selectedDateT
   const [open, setOpen] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState(null);
 
-  // Récupérer les plateformes sélectionnées depuis le localStorage
-  useEffect(() => {
-    const savedPlatforms = JSON.parse(localStorage.getItem('selectedPlatforms'));
-    if (savedPlatforms) {
-      setSelectedOptions(savedPlatforms);
-    }
-  }, []);
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
-  // Enregistrer les plateformes sélectionnées dans le localStorage
-  useEffect(() => {
-    localStorage.setItem('selectedPlatforms', JSON.stringify(selectedOptions));
-  }, [selectedOptions]);
 
   const platforms = [
     { icon: facebook, label: 'Facebook', value: '1' },
@@ -137,7 +126,7 @@ function AdPlateform_table({ selectedVerticalId, selectedDateFrom, selectedDateT
                   aria-describedby="modal-modal-description"
                 >
                   <Box sx={style}>
-                    <Box display="flex" justifyContent="flex-end" sx={{ marginBottom: '8px' }}>
+                  <Box display="flex" justifyContent="flex-end" sx={{marginBottom:"8px"}}>
                       <CloseIcon onClick={handleClose} />
                     </Box>
                     <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
@@ -153,11 +142,27 @@ function AdPlateform_table({ selectedVerticalId, selectedDateFrom, selectedDateT
                           name="color"
                           options={selectOptions}
                           onChange={setSelectedOptions}
-                          value={selectedOptions}
                           isMulti
                         />
                       </Box>
                     </Box>
+                    {/*<Box
+                      display="grid"
+                      paddingTop="10px"
+                      gridTemplateColumns="repeat(12, 1fr)"
+                      gap={2}
+                    >
+                      <Box display="grid" alignItems="center" gridColumn="span 4">
+                        <Typography id="modal-modal-description" variant="h6" component="h2">
+                          Diffusion :{' '}
+                        </Typography>
+                      </Box>
+                      <Box gridColumn="span 8">
+                        <FormControlLabel control={<Checkbox />} label="Tous" />
+                        <FormControlLabel control={<Checkbox />} label="Actif" />
+                        <FormControlLabel control={<Checkbox />} label="Inactif" />
+                      </Box>
+                    </Box>{' '}*/}
                     <Box display="flex" justifyContent="flex-end" marginTop={5}>
                       <Button variant="contained" color="success" onClick={handleClose}>
                         Sauvegarder
@@ -176,7 +181,7 @@ function AdPlateform_table({ selectedVerticalId, selectedDateFrom, selectedDateT
               <Table selectedVerticalId={selectedVerticalId}
                 selectedDateFrom={selectedDateFrom}
                 selectedDateTo={selectedDateTo}
-                platformValue={platform.value} />
+                platformValue={platform.value}/>
             </TabPanel>
           ))}
         </TabContext>

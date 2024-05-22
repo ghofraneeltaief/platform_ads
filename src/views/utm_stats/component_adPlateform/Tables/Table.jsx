@@ -26,6 +26,7 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
   const [isLoadingAds, setIsLoadingAds] = useState(false);
   const [isLoadingKeyword, setIsLoadingKeyword] = useState(false);
   const [campaignAdsetData, setCampaignAdsetData] = useState({});
+  const [sortBy, setSortBy] = useState({ field: '', order: 'asc' });
 
   const renderTableCells = (cells) => {
     return cells.map((cell, index) => (
@@ -105,16 +106,18 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
       return [];
     }
   };
+
   const handleAdsetTableCellClick = async (adsetId, campaignId, adsAccountId) => {
     setIsLoadingAds(true);
     fetchTableData(
       `${BASE_URL}/${api_version}/report/ads?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}&sn_id=${platformValue}&adset_id=${adsetId}&campaign_id=${campaignId}&ads_account_id=${adsAccountId}`,
-      setTableDataAds,
+      (data) => setTableDataAds({ ...tableDataAds, [adsetId]: data }),
     ).finally(() => setIsLoadingAds(false));
+
     setIsLoadingKeyword(true);
     fetchTableData(
       `${BASE_URL}/${api_version}/report/keywords?vertical_id=${selectedVerticalId}&from=${selectedDateFrom}&to=${selectedDateTo}&sn_id=${platformValue}&adset_id=${adsetId}&campaign_id=${campaignId}&ads_account_id=${adsAccountId}`,
-      setTableDataKeyword,
+      (data) => setTableDataKeyword({ ...tableDataKeyword, [adsetId]: data }),
     ).finally(() => setIsLoadingKeyword(false));
   };
 
@@ -127,6 +130,16 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
       ).finally(() => setIsLoadingCamp(false));
     }
   }, [selectedVerticalId, selectedDateFrom, selectedDateTo, platformValue]);
+  const sortData = (field) => {
+    const order = sortBy.field === field && sortBy.order === 'asc' ? 'desc' : 'asc';
+    setSortBy({ field, order });
+    const sortedData = [...tableData].sort((a, b) => {
+      const valueA = a[field] || 0; // Default to 0 if value is undefined
+      const valueB = b[field] || 0; // Default to 0 if value is undefined
+      return order === 'asc' ? valueA - valueB : valueB - valueA;
+    });
+    setTableData(sortedData);
+  };
 
   return (
     <Table sx={{ padding: '0px' }}>
@@ -138,9 +151,15 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
             'ON/OFF',
             'ID',
             'CAMPAIGN',
-            'LEAD',
-            'DEPENSES',
-            'CPL',
+            <span onClick={() => sortData('leads')} style={{ cursor: 'pointer' }}>
+              LEAD
+            </span>,
+            <span onClick={() => sortData('spend')} style={{ cursor: 'pointer' }}>
+              DEPENSES
+            </span>,
+            <span onClick={() => sortData('cpl')} style={{ cursor: 'pointer' }}>
+              CPL
+            </span>,
             'CTR',
             'CPM',
             'TC',
@@ -332,45 +351,51 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
                                             </TableRow>
                                           )}
                                           {/* Sinon, afficher les données */}
-                                          {!isLoadingKeyword &&
-                                            tableDataKeyword.map((rowDataKeyword, index) => (
-                                              <TableRow
-                                                key={index}
-                                                className={
-                                                  rowDataAdset.isOpen ? 'tableRowOpen3' : ''
-                                                }
-                                              >
-                                                <TableCell className="tab-button"></TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {rowData.ads_account_name}
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  <Switch checked={rowDataKeyword.status} />
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {rowDataKeyword.keyword_id}
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {rowDataKeyword.keyword_name}
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {rowDataKeyword.leads}
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {formatCpl(rowDataKeyword.spend)} €
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  <Typography className="badge">
-                                                    {formatCpl(rowDataKeyword.cpl)} €
-                                                  </Typography>
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  -
-                                                </TableCell>
-                                              </TableRow>
-                                            ))}
+                                          {!isLoadingKeyword[rowDataAdset.adset_id] &&
+                                            tableDataKeyword[rowDataAdset.adset_id]?.map(
+                                              (rowDataKeyword, index) => (
+                                                <TableRow
+                                                  key={index}
+                                                  className={
+                                                    rowDataAdset.isOpen ? 'tableRowOpen3' : ''
+                                                  }
+                                                >
+                                                  <TableCell className="tab-button"></TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {rowData.ads_account_name}
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    <Switch checked={rowDataKeyword.status} />
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {rowDataKeyword.keyword_id}
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {rowDataKeyword.keyword_name}
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {rowDataKeyword.leads}
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {formatCpl(rowDataKeyword.spend)} €
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    <Typography className="badge">
+                                                      {formatCpl(rowDataKeyword.cpl)} €
+                                                    </Typography>
+                                                  </TableCell>
+                                                  <TableCell
+                                                    sx={{ textAlign: 'center' }}
+                                                  ></TableCell>
+                                                  <TableCell
+                                                    sx={{ textAlign: 'center' }}
+                                                  ></TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    -
+                                                  </TableCell>
+                                                </TableRow>
+                                              ),
+                                            )}
                                         </TableBody>
                                       </Table>
                                     ) : (
@@ -410,45 +435,51 @@ function Campaign({ selectedVerticalId, selectedDateFrom, selectedDateTo, platfo
                                             </TableRow>
                                           )}
                                           {/* Sinon, afficher les données */}
-                                          {!isLoadingAds &&
-                                            tableDataAds.map((rowDataAds, index) => (
-                                              <TableRow
-                                                key={index}
-                                                className={
-                                                  rowDataAdset.isOpen ? 'tableRowOpen3' : ''
-                                                }
-                                              >
-                                                <TableCell className="tab-button"></TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {rowData.ads_account_name}
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  <Switch checked={rowDataAds.status} />
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {rowDataAds.ad_id}
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {rowDataAds.ad_name}
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {rowDataAds.leads}
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  {formatCpl(rowDataAds.spend)} €
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  <Typography className="badge">
-                                                    {formatCpl(rowDataAds.cpl)} €
-                                                  </Typography>
-                                                </TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}></TableCell>
-                                                <TableCell sx={{ textAlign: 'center' }}>
-                                                  -
-                                                </TableCell>
-                                              </TableRow>
-                                            ))}
+                                          {!isLoadingAds[rowDataAdset.adset_id] &&
+                                            tableDataAds[rowDataAdset.adset_id]?.map(
+                                              (rowDataAds, index) => (
+                                                <TableRow
+                                                  key={index}
+                                                  className={
+                                                    rowDataAdset.isOpen ? 'tableRowOpen3' : ''
+                                                  }
+                                                >
+                                                  <TableCell className="tab-button"></TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {rowData.ads_account_name}
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    <Switch checked={rowDataAds.status} />
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {rowDataAds.ad_id}
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {rowDataAds.ad_name}
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {rowDataAds.leads}
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    {formatCpl(rowDataAds.spend)} €
+                                                  </TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    <Typography className="badge">
+                                                      {formatCpl(rowDataAds.cpl)} €
+                                                    </Typography>
+                                                  </TableCell>
+                                                  <TableCell
+                                                    sx={{ textAlign: 'center' }}
+                                                  ></TableCell>
+                                                  <TableCell
+                                                    sx={{ textAlign: 'center' }}
+                                                  ></TableCell>
+                                                  <TableCell sx={{ textAlign: 'center' }}>
+                                                    -
+                                                  </TableCell>
+                                                </TableRow>
+                                              ),
+                                            )}
                                         </TableBody>
                                       </Table>
                                     )}
